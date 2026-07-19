@@ -3,14 +3,15 @@ import React from 'react';
 export default function WhatsAppButton() {
   return (
     <a
-      href="https://wa.me/5541999999999?text=Olá!%20Gostaria%20de%20solicitar%20um%20orçamento%20de%20piso%20aquecido."
+      href="https://wa.me/5548991948635?text=Olá!%20Gostaria%20de%20solicitar%20um%20orçamento%20para%20o%20Grupo%20Greentech."
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Falar no WhatsApp"
-      className="fixed bottom-6 right-6 z-50 p-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-2xl flex items-center justify-center transition-transform hover:scale-110 active:scale-95 group cursor-pointer"
+      className="fixed bottom-6 right-6 z-50 p-4 bg-[#A4E83C] hover:bg-[#00A9E0] text-neutral-950 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 group cursor-pointer"
+      style={{ boxShadow: '0 0 20px rgba(164, 232, 60, 0.4)' }}
     >
       {/* Efeito de Ondulação/Pulso */}
-      <span className="absolute inset-0 rounded-full bg-emerald-500/30 animate-ping group-hover:animate-none scale-105 pointer-events-none" />
+      <span className="absolute inset-0 rounded-full bg-[#A4E83C]/30 animate-ping group-hover:animate-none scale-105 pointer-events-none" />
 
       {/* Ícone SVG do WhatsApp */}
       <svg className="w-7 h-7 relative z-10" fill="currentColor" viewBox="0 0 24 24">

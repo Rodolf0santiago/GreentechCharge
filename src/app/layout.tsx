@@ -7,11 +7,11 @@ export const viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'HUBLY PRO | CRM & Sistema de Gestão',
+  title: 'Grupo Greentech | Energia Solar & Mobilidade Elétrica',
   description:
-    'Sistemas de calefação por piso radiante elétrico ou hidráulico de alta performance. Conforto térmico invisível, seguro e sob medida para sua residência.',
-  keywords: ['piso aquecido', 'calefação', 'conforto térmico', 'climatização residencial', 'pisos radiantes', 'HUBLY PRO'],
-  authors: [{ name: 'HUBLY PRO' }],
+    'Instalação de sistemas solares e infraestrutura de carregamento de veículos elétricos. Greentech Charge: soluções inteligentes de recarga veicular para residências e condomínios.',
+  keywords: ['energia solar', 'carregador veicular', 'mobilidade elétrica', 'Grupo Greentech', 'Greentech Charge', 'painel solar', 'wallbox', 'carport solar'],
+  authors: [{ name: 'Grupo Greentech' }],
 };
 
 export default function RootLayout({

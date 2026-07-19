@@ -85,3 +85,46 @@ body {
   font-family: var(--font-sans);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+/* Custom Greentech Utilities */
+@utility bg-grid-pattern {
+  background-size: 50px 50px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 169, 224, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(164, 232, 60, 0.03) 1px, transparent 1px);
+}
+
+@utility glow-green {
+  box-shadow: 0 0 30px -5px rgba(164, 232, 60, 0.25);
+}
+
+@utility glow-cyan {
+  box-shadow: 0 0 30px -5px rgba(0, 169, 224, 0.25);
+}
+
+@utility glass-card {
+  background: rgba(10, 10, 10, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+@utility glass-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  &:hover {
+    background: rgba(15, 15, 15, 0.75);
+    border-color: rgba(0, 169, 224, 0.3);
+    box-shadow: 0 10px 30px -10px rgba(0, 169, 224, 0.2);
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes light-trail {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@utility animate-light-trail {
+  animation: light-trail 3s infinite linear;
+}
+
