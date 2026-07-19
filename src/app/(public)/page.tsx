@@ -758,25 +758,6 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Itajaí */}
-                <div className="flex items-start gap-4">
-                  <div className="p-3.5 rounded-xl bg-neutral-900 border border-neutral-800 text-[#00A9E0] mt-1 shadow-lg shadow-black/50">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 className="text-xs uppercase tracking-widest text-[#00A9E0] font-bold">Itajaí e Região</h4>
-                    <a
-                      href="https://wa.me/554789103547"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-lg font-black text-white hover:text-[#A4E83C] transition-colors block mt-1"
-                    >
-                      (47) 8910-3547
-                    </a>
-                  </div>
-                </div>
 
                 {/* Instagram */}
                 <div className="flex items-start gap-4">
