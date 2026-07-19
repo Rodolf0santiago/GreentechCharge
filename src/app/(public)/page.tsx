@@ -142,8 +142,8 @@ export default function LandingPage() {
       <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrollActive ? 'bg-[#0A0A0A]/95 backdrop-blur-md border-b border-neutral-900 glow-cyan/10 py-4' : 'bg-transparent py-6'}`}>
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <a href="#" className="flex items-center gap-2 group">
-            {/* Logo Image without White background */}
-            <TransparentLogo alt="Logo Greentech" className="w-10 h-10 object-contain transition-transform group-hover:scale-110" />
+            {/* Logo Image without White background (Larger size) */}
+            <TransparentLogo alt="Logo Greentech" className="w-14 h-14 object-contain transition-transform group-hover:scale-110" />
             <div className="flex flex-col">
               <span className="text-lg font-black tracking-wider text-white leading-none">GRUPO GREENTECH</span>
               <span className="text-[9px] uppercase tracking-[0.35em] text-[#00A9E0] leading-none mt-1">Sustentabilidade & Energia</span>
@@ -228,7 +228,7 @@ export default function LandingPage() {
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#A4E83C]/10 to-[#00A9E0]/10 blur-3xl group-hover:from-[#A4E83C]/20 group-hover:to-[#00A9E0]/20 transition-all duration-700 -z-10" />
               <TransparentLogo
                 alt="Logo Greentech Charge"
-                className="w-48 h-48 md:w-56 md:h-56 object-contain mx-auto transform group-hover:scale-105 transition-transform duration-500 drop-shadow-[0_0_25px_rgba(164,232,60,0.2)]"
+                className="w-64 h-64 md:w-72 md:h-72 object-contain mx-auto transform group-hover:scale-105 transition-transform duration-500 drop-shadow-[0_0_35px_rgba(164,232,60,0.25)]"
               />
             </div>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#A4E83C]/35 bg-[#A4E83C]/5 text-[#A4E83C] text-xs md:text-sm font-bold tracking-wider uppercase">
