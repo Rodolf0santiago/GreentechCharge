@@ -97,21 +97,10 @@ export default function LandingPage() {
       <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrollActive ? 'bg-[#0A0A0A]/95 backdrop-blur-md border-b border-neutral-900 glow-cyan/10 py-4' : 'bg-transparent py-6'}`}>
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <a href="#" className="flex items-center gap-2 group">
-            {/* Inline SVG recreation of the Logo image_0.png */}
-            <svg className="w-10 h-10 transition-transform group-hover:rotate-12" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="navLogoGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#00A9E0" />
-                  <stop offset="100%" stopColor="#A4E83C" />
-                </linearGradient>
-              </defs>
-              <path d="M 68 25 A 35 35 0 1 1 80 65" stroke="url(#navLogoGrad)" strokeWidth="4" fill="none" strokeLinecap="round" />
-              <g transform="translate(68, 58) scale(0.3) rotate(-30)">
-                <path d="M 0 0 C 5 -5, 15 -10, 25 -5 L 45 10 C 50 15, 52 22, 48 28 L 45 32 C 40 38, 32 38, 28 34 L 15 20 C 10 15, 5 15, 0 10 Z" fill="url(#navLogoGrad)" />
-                <path d="M 3 6 L -10 18" stroke="url(#navLogoGrad)" strokeWidth="4" strokeLinecap="round" />
-              </g>
-              <circle cx="50" cy="50" r="12" fill="url(#navLogoGrad)" className="opacity-80" />
-            </svg>
+            {/* Logo Image in Premium Badge */}
+            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border border-white/20 transition-transform group-hover:scale-105 shadow-[0_0_15px_rgba(164,232,60,0.2)]">
+              <img src="/logo.png" alt="Logo Greentech" className="w-8 h-8 object-contain" />
+            </div>
             <div className="flex flex-col">
               <span className="text-lg font-black tracking-wider text-white leading-none">GRUPO GREENTECH</span>
               <span className="text-[9px] uppercase tracking-[0.35em] text-[#00A9E0] leading-none mt-1">Sustentabilidade & Energia</span>
@@ -191,26 +180,14 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto text-center space-y-10 z-10 pt-12">
           {/* Logo Greentech Charge Highlight */}
           <div className="flex flex-col items-center space-y-4 animate-fade-in">
-            {/* Beautiful Large SVG Logo */}
-            <svg className="w-48 h-48 md:w-56 md:h-56 mx-auto drop-shadow-[0_0_20px_rgba(0,169,224,0.15)]" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="logoGradHero" x1="0%" y1="100%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#00A9E0" />
-                  <stop offset="100%" stopColor="#A4E83C" />
-                </linearGradient>
-              </defs>
-              <path d="M 145 25 A 95 95 0 1 1 185 185" stroke="url(#logoGradHero)" strokeWidth="6" fill="none" strokeLinecap="round" />
-              
-              <text x="120" y="112" textAnchor="middle" fill="#FFFFFF" fontSize="23" fontWeight="900" letterSpacing="2" fontFamily="sans-serif">GREEN TECH</text>
-              <text x="120" y="136" textAnchor="middle" fill="#A4E83C" fontSize="11" fontWeight="700" letterSpacing="8" fontFamily="sans-serif">CHARGE</text>
-              
-              <g transform="translate(170, 168) rotate(-22)">
-                <path d="M 0 0 C 5 -5, 15 -10, 25 -5 L 45 10 C 50 15, 52 22, 48 28 L 45 32 C 40 38, 32 38, 28 34 L 15 20 C 10 15, 5 15, 0 10 Z" fill="url(#logoGradHero)" />
-                <circle cx="35" cy="20" r="4" fill="#000" className="opacity-90" />
-                <circle cx="41" cy="23" r="2.5" fill="#000" className="opacity-90" />
-                <path d="M 3 6 L -10 18" stroke="url(#logoGradHero)" strokeWidth="5" strokeLinecap="round" />
-              </g>
-            </svg>
+            {/* Logo Image in Premium Badge (Hero) */}
+            <div className="w-40 h-40 md:w-48 md:h-48 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white/20 shadow-[0_0_40px_rgba(0,169,224,0.3)] mx-auto relative group">
+              <img
+                src="/logo.png"
+                alt="Logo Greentech Charge"
+                className="w-32 h-32 md:w-36 md:h-36 object-contain transform group-hover:scale-105 transition-transform duration-500"
+              />
+            </div>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#A4E83C]/35 bg-[#A4E83C]/5 text-[#A4E83C] text-xs md:text-sm font-bold tracking-wider uppercase">
               <span className="w-2.5 h-2.5 rounded-full bg-[#A4E83C] animate-ping" />
               Sustentabilidade que move o futuro
