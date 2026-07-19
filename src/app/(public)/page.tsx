@@ -6,6 +6,51 @@ import WhatsAppButton from '@/components/public/whatsapp-button';
 import EconomyCalculator from '@/components/public/economy-calculator';
 import { getLandingPageData, PortfolioProject, Testimonial } from '@/app/actions/landingPage';
 
+// Componente auxiliar para remover fundo branco do logo de forma dinâmica via Canvas
+function TransparentLogo({ className, alt }: { className?: string; alt: string }) {
+  const [src, setSrc] = useState('/logo.png');
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = '/logo.png';
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
+      ctx.drawImage(img, 0, 0);
+      try {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        
+        // Loop por todos os pixels (RGBA)
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          
+          // Se o pixel for muito claro (fundo branco), torna transparente
+          const brightness = (r + g + b) / 3;
+          if (brightness > 240) {
+            // Suaviza a borda (anti-aliasing) com base no nível de brilho
+            const factor = (255 - brightness) / 15;
+            data[i + 3] = Math.max(0, Math.min(255, Math.floor(data[i + 3] * factor)));
+          }
+        }
+        ctx.putImageData(imageData, 0, 0);
+        setSrc(canvas.toDataURL());
+      } catch (e) {
+        console.error('Erro ao processar transparência do logo:', e);
+      }
+    };
+  }, []);
+
+  return <img src={src} alt={alt} className={className} />;
+}
+
 export default function LandingPage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -97,10 +142,8 @@ export default function LandingPage() {
       <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrollActive ? 'bg-[#0A0A0A]/95 backdrop-blur-md border-b border-neutral-900 glow-cyan/10 py-4' : 'bg-transparent py-6'}`}>
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <a href="#" className="flex items-center gap-2 group">
-            {/* Logo Image in Premium Badge */}
-            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border border-white/20 transition-transform group-hover:scale-105 shadow-[0_0_15px_rgba(164,232,60,0.2)]">
-              <img src="/logo.png" alt="Logo Greentech" className="w-8 h-8 object-contain" />
-            </div>
+            {/* Logo Image without White background */}
+            <TransparentLogo alt="Logo Greentech" className="w-10 h-10 object-contain transition-transform group-hover:scale-110" />
             <div className="flex flex-col">
               <span className="text-lg font-black tracking-wider text-white leading-none">GRUPO GREENTECH</span>
               <span className="text-[9px] uppercase tracking-[0.35em] text-[#00A9E0] leading-none mt-1">Sustentabilidade & Energia</span>
@@ -180,12 +223,12 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto text-center space-y-10 z-10 pt-12">
           {/* Logo Greentech Charge Highlight */}
           <div className="flex flex-col items-center space-y-4 animate-fade-in">
-            {/* Logo Image in Premium Badge (Hero) */}
-            <div className="w-40 h-40 md:w-48 md:h-48 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white/20 shadow-[0_0_40px_rgba(0,169,224,0.3)] mx-auto relative group">
-              <img
-                src="/logo.png"
+            {/* Logo Image without White background (Hero) */}
+            <div className="relative group mx-auto">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#A4E83C]/10 to-[#00A9E0]/10 blur-3xl group-hover:from-[#A4E83C]/20 group-hover:to-[#00A9E0]/20 transition-all duration-700 -z-10" />
+              <TransparentLogo
                 alt="Logo Greentech Charge"
-                className="w-32 h-32 md:w-36 md:h-36 object-contain transform group-hover:scale-105 transition-transform duration-500"
+                className="w-48 h-48 md:w-56 md:h-56 object-contain mx-auto transform group-hover:scale-105 transition-transform duration-500 drop-shadow-[0_0_25px_rgba(164,232,60,0.2)]"
               />
             </div>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#A4E83C]/35 bg-[#A4E83C]/5 text-[#A4E83C] text-xs md:text-sm font-bold tracking-wider uppercase">
