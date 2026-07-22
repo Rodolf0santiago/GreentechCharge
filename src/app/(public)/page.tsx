@@ -51,6 +51,73 @@ function TransparentLogo({ className, alt }: { className?: string; alt: string }
   return <img src={src} alt={alt} className={className} />;
 }
 
+// Componente para Card de Projeto com Galeria Interativa de Fotos
+function ProjectCard({ project }: { project: PortfolioProject }) {
+  const allImages = project.images && project.images.length > 0 ? project.images : [project.imageUrl];
+  const [selectedImg, setSelectedImg] = useState(project.imageUrl || allImages[0]);
+
+  useEffect(() => {
+    if (project.imageUrl) {
+      setSelectedImg(project.imageUrl);
+    }
+  }, [project]);
+
+  return (
+    <div className="glass-card rounded-3xl overflow-hidden group border border-white/5 hover:border-[#00A9E0]/30 transition-all duration-300 flex flex-col justify-between">
+      <div>
+        <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#0A0A0A]">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent z-10 pointer-events-none" />
+          <img
+            src={selectedImg}
+            alt={project.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+          />
+          <div className="absolute top-4 left-4 z-20 flex gap-2 flex-wrap">
+            <span className="px-3.5 py-1.5 rounded-full bg-[#00A9E0]/20 backdrop-blur-md border border-[#00A9E0]/40 text-[#00A9E0] text-[10px] font-bold uppercase tracking-wider shadow-sm">
+              {project.category}
+            </span>
+            {allImages.length > 1 && (
+              <span className="px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold tracking-wider flex items-center gap-1">
+                📷 {allImages.length} Fotos
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Thumbnail Gallery Selector */}
+        {allImages.length > 1 && (
+          <div className="px-6 pt-4 flex gap-2 overflow-x-auto pb-1">
+            {allImages.map((img, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setSelectedImg(img)}
+                className={`w-14 h-14 rounded-xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer ${
+                  selectedImg === img ? 'border-[#A4E83C] scale-105 shadow-[0_0_10px_rgba(164,232,60,0.3)]' : 'border-neutral-800 opacity-60 hover:opacity-100'
+                }`}
+              >
+                <img src={img} alt="" className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="p-8 space-y-4">
+          <h3 className="text-xl font-bold text-white leading-tight group-hover:text-[#A4E83C] transition-colors">{project.title}</h3>
+          <p className="text-neutral-450 text-sm leading-relaxed">{project.description}</p>
+        </div>
+      </div>
+
+      <div className="px-8 pb-8 pt-2">
+        <div className="pt-4 border-t border-neutral-900 flex justify-between items-center text-xs text-neutral-400 font-bold uppercase tracking-wider">
+          <span>Cliente: <strong className="text-neutral-200">{project.clientName}</strong></span>
+          <span className="text-[#00A9E0]">📍 {project.location}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -565,34 +632,14 @@ export default function LandingPage() {
               NOSSOS PROJETOS ENTREGUES
             </h2>
             <p className="text-neutral-400 text-base md:text-lg">
-              Veja de perto a qualidade e sofisticação das instalações executadas pelo Grupo Greentech.
+              Veja de perto a qualidade e sofisticação das instalações e serviços executados pelo Grupo Greentech.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {portfolio.length > 0 ? (
               portfolio.map((project) => (
-                <div key={project.id} className="glass-card rounded-3xl overflow-hidden group border border-white/5 hover:border-[#00A9E0]/30 transition-all duration-300">
-                  <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#0A0A0A]">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent z-10" />
-                    <img
-                      src={project.imageUrl}
-                      alt={project.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
-                    />
-                    <span className="absolute top-4 left-4 z-20 px-3.5 py-1.5 rounded-full bg-[#00A9E0]/15 border border-[#00A9E0]/30 text-[#00A9E0] text-[10px] font-bold uppercase tracking-wider">
-                      {project.category}
-                    </span>
-                  </div>
-                  <div className="p-8 space-y-4">
-                    <h3 className="text-xl font-bold text-white leading-tight group-hover:text-[#A4E83C] transition-colors">{project.title}</h3>
-                    <p className="text-neutral-450 text-sm leading-relaxed">{project.description}</p>
-                    <div className="pt-2 border-t border-neutral-900 flex justify-between items-center text-xs text-neutral-400 font-bold uppercase tracking-wider">
-                      <span>Cliente: {project.clientName}</span>
-                      <span className="text-[#00A9E0]">{project.location}</span>
-                    </div>
-                  </div>
-                </div>
+                <ProjectCard key={project.id} project={project} />
               ))
             ) : (
               <p className="col-span-2 text-center text-neutral-500 py-10 italic">Nenhum projeto cadastrado no momento.</p>
@@ -632,8 +679,12 @@ export default function LandingPage() {
                   </p>
 
                   <div className="pt-4 border-t border-neutral-900/60 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00A9E0] to-[#A4E83C] flex items-center justify-center text-black font-extrabold text-sm shrink-0">
-                      {test.clientName.charAt(0)}
+                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#00A9E0] to-[#A4E83C] flex items-center justify-center text-black font-extrabold text-sm shrink-0 overflow-hidden border border-white/20 shadow-md">
+                      {test.avatarUrl ? (
+                        <img src={test.avatarUrl} alt={test.clientName} className="w-full h-full object-cover" />
+                      ) : (
+                        test.clientName.charAt(0).toUpperCase()
+                      )}
                     </div>
                     <div>
                       <h4 className="font-extrabold text-white text-sm md:text-base">{test.clientName}</h4>

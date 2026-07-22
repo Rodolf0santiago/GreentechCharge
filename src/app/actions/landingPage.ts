@@ -15,6 +15,7 @@ export interface PortfolioProject {
   clientName: string;
   location: string;
   imageUrl: string;
+  images?: string[]; // Galeria de fotos adicionais do serviço
 }
 
 // Interface para Depoimento
@@ -24,6 +25,7 @@ export interface Testimonial {
   role: string;
   comment: string;
   rating: number;
+  avatarUrl?: string; // Foto/Avatar do cliente
 }
 
 // Interface Geral
@@ -41,7 +43,11 @@ const DEFAULT_DATA: LandingPageData = {
       description: 'Instalação de carport solar com capacidade para 2 veículos elétricos e geração de 5.4 kWp para residência de alto padrão.',
       clientName: 'Carlos Eduardo',
       location: 'Florianópolis - SC',
-      imageUrl: '/hero_carport_dusk.png'
+      imageUrl: '/hero_carport_dusk.png',
+      images: [
+        '/hero_carport_dusk.png',
+        '/condo_ev_charging.png'
+      ]
     },
     {
       id: '2',
@@ -50,7 +56,11 @@ const DEFAULT_DATA: LandingPageData = {
       description: 'Projeto de adequação elétrica e instalação de 8 estações de recarga inteligente com sistema de gerenciamento de demanda dinâmico.',
       clientName: 'Condomínio Edifício Royal',
       location: 'Itajaí - SC',
-      imageUrl: '/condo_ev_charging.png'
+      imageUrl: '/condo_ev_charging.png',
+      images: [
+        '/condo_ev_charging.png',
+        '/hero_carport_dusk.png'
+      ]
     }
   ],
   testimonials: [
@@ -59,14 +69,16 @@ const DEFAULT_DATA: LandingPageData = {
       clientName: 'Mauro de Souza',
       role: 'Síndico do Condomínio Royal',
       comment: 'A Greentech Charge transformou nossa garagem. A instalação foi extremamente profissional, seguindo todas as normas de segurança e regras do bombeiro. O sistema de controle individualizado funciona perfeitamente.',
-      rating: 5
+      rating: 5,
+      avatarUrl: ''
     },
     {
       id: '2',
       clientName: 'Juliana Silveira',
       role: 'Proprietária de Veículo Elétrico',
       comment: 'Carregar meu carro com energia solar em casa é fantástico! A economia é absurda e o atendimento da equipe da Greentech superou todas as expectativas. Recomendo muito!',
-      rating: 5
+      rating: 5,
+      avatarUrl: ''
     }
   ]
 };
