@@ -245,6 +245,8 @@ export async function alterarStatusAssinatura(empresaId: string, status: 'ativa'
     if (error) {
       console.error('Erro ao atualizar status da assinatura:', error);
       return { success: false, error: error.message || 'Erro ao alterar o status da assinatura.' };
+    }
+
     return { success: true };
   } catch (err: any) {
     console.error('Erro no alterarStatusAssinatura:', err);

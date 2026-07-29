@@ -212,11 +212,3 @@ export async function selecionarEmpresa(empresaId: string): Promise<{
     return { success: false, error: err.message || 'Erro inesperado ao selecionar empresa.' };
   }
 }
-      role: membro.role,
-      nome_fantasia: empresa?.nome_fantasia,
-    };
-  } catch (err: any) {
-    console.error('[selecionarEmpresa] Erro inesperado:', err);
-    return { success: false, error: err.message || 'Erro inesperado.' };
-  }
-}
