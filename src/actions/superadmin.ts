@@ -245,8 +245,6 @@ export async function alterarStatusAssinatura(empresaId: string, status: 'ativa'
     if (error) {
       console.error('Erro ao atualizar status da assinatura:', error);
       return { success: false, error: error.message || 'Erro ao alterar o status da assinatura.' };
-    }
-
     return { success: true };
   } catch (err: any) {
     console.error('Erro no alterarStatusAssinatura:', err);
@@ -275,14 +273,43 @@ export async function getSaaSEmpresas() {
     // 2. Para cada empresa, buscar o usuário com a role 'mestre' e contar registros
     const empresasComMetricas = await Promise.all(
       empresas.map(async (empresa) => {
-        // Obter usuário mestre
-        const { data: mestre } = await supabaseAdmin
+        let mestre: { id: string; nome: string; email: string; senha_temp?: string } | null = null;
+
+        // A. Buscar em perfis_usuarios por empresa_id (mestre ou admin)
+        const { data: pMestre } = await supabaseAdmin
           .from('perfis_usuarios')
-          .select('id, nome_completo, email, senha_temp')
+          .select('id, nome_completo, email, senha_temp, role')
           .eq('empresa_id', empresa.id)
-          .eq('role', 'mestre')
+          .in('role', ['mestre', 'admin'])
           .limit(1)
           .maybeSingle();
+
+        if (pMestre) {
+          mestre = {
+            id: pMestre.id,
+            nome: pMestre.nome_completo || pMestre.email,
+            email: pMestre.email,
+            senha_temp: pMestre.senha_temp
+          };
+        } else {
+          // B. Buscar qualquer perfil vinculado a esta empresa (excluindo super_admin)
+          const { data: pQualquer } = await supabaseAdmin
+            .from('perfis_usuarios')
+            .select('id, nome_completo, email, senha_temp')
+            .eq('empresa_id', empresa.id)
+            .neq('role', 'super_admin')
+            .limit(1)
+            .maybeSingle();
+
+          if (pQualquer) {
+            mestre = {
+              id: pQualquer.id,
+              nome: pQualquer.nome_completo || pQualquer.email,
+              email: pQualquer.email,
+              senha_temp: pQualquer.senha_temp
+            };
+          }
+        }
 
         // Contar leads
         const { count: leadsCount } = await supabaseAdmin
@@ -298,12 +325,7 @@ export async function getSaaSEmpresas() {
 
         return {
           ...empresa,
-          mestre: mestre ? {
-            id: mestre.id,
-            nome: mestre.nome_completo,
-            email: mestre.email,
-            senha_temp: mestre.senha_temp
-          } : null,
+          mestre,
           metricas: {
             leads: leadsCount || 0,
             projetos: projectsCount || 0
@@ -316,6 +338,121 @@ export async function getSaaSEmpresas() {
   } catch (err: any) {
     console.error('Erro no getSaaSEmpresas:', err);
     return { success: false, error: err.message || 'Erro inesperado ao listar empresas.' };
+  }
+}
+
+interface VincularMestreParams {
+  empresaId: string;
+  email: string;
+  nome: string;
+  password?: string;
+}
+
+/**
+ * Cria ou vincula a conta de um usuário responsável 'mestre' a uma empresa.
+ */
+export async function vincularOuCriarMestreEmpresa(params: VincularMestreParams) {
+  try {
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return { success: false, error: 'Chave SUPABASE_SERVICE_ROLE_KEY ausente.' };
+    }
+
+    const supabaseAdmin = createServerClient();
+    await checkSuperAdminPermission(supabaseAdmin);
+
+    if (!params.email?.trim()) return { success: false, error: 'O e-mail é obrigatório.' };
+    if (!params.nome?.trim()) return { success: false, error: 'O nome é obrigatório.' };
+
+    const emailFormatado = params.email.trim().toLowerCase();
+    const senhaDefinida = params.password?.trim() || 'HublyMestre2026!';
+
+    // Verificar se o usuário já existe no Auth pelo e-mail
+    const { data: { users } } = await supabaseAdmin.auth.admin.listUsers();
+    let existingUser = users?.find(u => u.email?.toLowerCase() === emailFormatado);
+
+    let userId: string;
+
+    if (existingUser) {
+      userId = existingUser.id;
+      const { error: updateAuthErr } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+        password: senhaDefinida,
+        user_metadata: {
+          ...existingUser.user_metadata,
+          name: params.nome.trim(),
+          nome_completo: params.nome.trim(),
+          role: 'mestre',
+          status_acesso: true,
+          empresa_id: params.empresaId
+        }
+      });
+
+      if (updateAuthErr) {
+        console.error('Erro ao atualizar usuário no Auth:', updateAuthErr);
+        return { success: false, error: updateAuthErr.message };
+      }
+    } else {
+      const { data: newAuthUser, error: createAuthErr } = await supabaseAdmin.auth.admin.createUser({
+        email: emailFormatado,
+        password: senhaDefinida,
+        email_confirm: true,
+        user_metadata: {
+          name: params.nome.trim(),
+          nome_completo: params.nome.trim(),
+          role: 'mestre',
+          status_acesso: true,
+          empresa_id: params.empresaId
+        }
+      });
+
+      if (createAuthErr || !newAuthUser.user) {
+        console.error('Erro ao criar usuário mestre no Auth:', createAuthErr);
+        return { success: false, error: createAuthErr?.message || 'Erro ao criar conta no Supabase Auth.' };
+      }
+
+      userId = newAuthUser.user.id;
+    }
+
+    // Upsert no perfis_usuarios
+    const { error: profileError } = await supabaseAdmin
+      .from('perfis_usuarios')
+      .upsert({
+        id: userId,
+        nome_completo: params.nome.trim(),
+        email: emailFormatado,
+        role: 'mestre',
+        status_acesso: true,
+        empresa_id: params.empresaId,
+        senha_temp: senhaDefinida
+      }, { onConflict: 'id' });
+
+    if (profileError) {
+      console.error('Erro no upsert de perfis_usuarios:', profileError);
+      return { success: false, error: profileError.message };
+    }
+
+    // Upsert em empresa_membros se a tabela existir
+    try {
+      await supabaseAdmin
+        .from('empresa_membros')
+        .upsert({
+          user_id: userId,
+          empresa_id: params.empresaId,
+          role: 'mestre',
+          status_acesso: true,
+        }, { onConflict: 'user_id,empresa_id' });
+    } catch (e) {}
+
+    return {
+      success: true,
+      data: {
+        userId,
+        email: emailFormatado,
+        senha: senhaDefinida
+      }
+    };
+  } catch (err: any) {
+    console.error('Erro no vincularOuCriarMestreEmpresa:', err);
+    return { success: false, error: err.message || 'Erro ao vincular/criar usuário mestre.' };
   }
 }
 

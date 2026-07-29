@@ -9,7 +9,8 @@ import {
   atualizarEmpresa,
   alternarBloqueioEmpresa,
   salvarFaturamentoCustomizado,
-  excluirEmpresa
+  excluirEmpresa,
+  vincularOuCriarMestreEmpresa
 } from '@/actions/superadmin';
 import { supabase } from '@/lib/supabase';
 
@@ -52,6 +53,7 @@ export default function SuperAdminDashboard() {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isVincularModalOpen, setIsVincularModalOpen] = useState(false);
 
   // Estados de Senha (olho)
   const [showCreatePassword, setShowCreatePassword] = useState(false);
@@ -60,6 +62,43 @@ export default function SuperAdminDashboard() {
   // Estados de Operação
   const [selectedEmpresa, setSelectedEmpresa] = useState<EmpresaMetric | null>(null);
   
+  // Form de Vincular Mestre
+  const [vincularForm, setVincularForm] = useState({
+    nome: '',
+    email: '',
+    password: ''
+  });
+  const [vincularLoading, setVincularLoading] = useState(false);
+
+  const handleVincularMestre = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedEmpresa) return;
+    setVincularLoading(true);
+    setError(null);
+    setSuccessMsg(null);
+
+    try {
+      const res = await vincularOuCriarMestreEmpresa({
+        empresaId: selectedEmpresa.id,
+        nome: vincularForm.nome,
+        email: vincularForm.email,
+        password: vincularForm.password
+      });
+
+      if (res.success && res.data) {
+        setSuccessMsg(`Usuário mestre "${vincularForm.email}" vinculado à empresa "${selectedEmpresa.nome_fantasia}" com sucesso! Senha configurada: ${res.data.senha}`);
+        setIsVincularModalOpen(false);
+        loadData();
+      } else {
+        setError(res.error || 'Erro ao vincular responsável mestre.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Erro inesperado.');
+    } finally {
+      setVincularLoading(false);
+    }
+  };
+
   // Form de Criação de Empresa
   const [newCompanyForm, setNewCompanyForm] = useState({
     nome_fantasia: '',
@@ -606,7 +645,26 @@ export default function SuperAdminDashboard() {
                             </div>
                           </div>
                         ) : (
-                          <span className="text-slate-600 italic">Sem responsável vinculado</span>
+                          <div className="flex flex-col gap-1">
+                            <span className="text-amber-400/90 text-[11px] font-medium italic">Sem responsável vinculado</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setError(null);
+                                setSuccessMsg(null);
+                                setSelectedEmpresa(emp);
+                                setVincularForm({
+                                  nome: emp.nome_fantasia + ' Admin',
+                                  email: 'contato@greentechsolar.com.br',
+                                  password: 'HublyMestre2026!'
+                                });
+                                setIsVincularModalOpen(true);
+                              }}
+                              className="text-xs font-bold text-indigo-400 hover:text-indigo-300 underline cursor-pointer text-left"
+                            >
+                              + Vincular Mestre
+                            </button>
+                          </div>
                         )}
                       </td>
                       <td className="py-4 px-5 text-slate-400">
@@ -718,18 +776,36 @@ export default function SuperAdminDashboard() {
                           Faturamento
                         </button>
                         
-                        <button
-                          onClick={() => {
-                            setError(null);
-                            setSuccessMsg(null);
-                            setSelectedEmpresa(emp);
-                            setIsPasswordModalOpen(true);
-                          }}
-                          disabled={!emp.mestre}
-                          className="bg-slate-900 border border-slate-800 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-400 py-1.5 px-3 rounded-lg text-[11px] font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                        >
-                          Resetar Senha
-                        </button>
+                        {emp.mestre ? (
+                          <button
+                            onClick={() => {
+                              setError(null);
+                              setSuccessMsg(null);
+                              setSelectedEmpresa(emp);
+                              setIsPasswordModalOpen(true);
+                            }}
+                            className="bg-slate-900 border border-slate-800 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-400 py-1.5 px-3 rounded-lg text-[11px] font-semibold transition-all cursor-pointer"
+                          >
+                            Resetar Senha
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setError(null);
+                              setSuccessMsg(null);
+                              setSelectedEmpresa(emp);
+                              setVincularForm({
+                                nome: emp.nome_fantasia + ' Admin',
+                                email: 'contato@greentechsolar.com.br',
+                                password: 'HublyMestre2026!'
+                              });
+                              setIsVincularModalOpen(true);
+                            }}
+                            className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-1.5 px-3 rounded-lg text-[11px] transition-all cursor-pointer shadow-md shadow-indigo-600/20"
+                          >
+                            + Vincular Mestre
+                          </button>
+                        )}
 
                         <button
                           onClick={() => {
@@ -1304,6 +1380,97 @@ export default function SuperAdminDashboard() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {/* =========================================================================
+          MODAL: VINCULAR RESPONSÁVEL MESTRE
+          ========================================================================= */}
+      {isVincularModalOpen && selectedEmpresa && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-slate-900 border border-slate-850 w-full max-w-md rounded-2xl shadow-2xl relative overflow-hidden animate-slide-up">
+            <div className="p-6 border-b border-slate-850 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-indigo-400">Vincular Responsável (Mestre)</h3>
+                <p className="text-slate-400 text-xs mt-0.5">Criar ou vincular conta de acesso à empresa "{selectedEmpresa.nome_fantasia}"</p>
+              </div>
+              <button
+                onClick={() => setIsVincularModalOpen(false)}
+                className="text-slate-400 hover:text-slate-100 p-1 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleVincularMestre} className="p-6 space-y-4">
+              {error && (
+                <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-xs font-semibold">
+                  {error}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+                  Nome do Responsável
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={vincularForm.nome}
+                  onChange={(e) => setVincularForm({ ...vincularForm, nome: e.target.value })}
+                  placeholder="Ex: Roberto Santiago"
+                  className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl py-2.5 px-3.5 text-xs outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+                  E-mail Corporativo
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={vincularForm.email}
+                  onChange={(e) => setVincularForm({ ...vincularForm, email: e.target.value })}
+                  placeholder="contato@greentechsolar.com.br"
+                  className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl py-2.5 px-3.5 text-xs outline-none focus:border-indigo-500 transition-colors font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+                  Senha de Acesso
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={vincularForm.password}
+                  onChange={(e) => setVincularForm({ ...vincularForm, password: e.target.value })}
+                  placeholder="HublyMestre2026!"
+                  className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl py-2.5 px-3.5 text-xs outline-none focus:border-indigo-500 transition-colors font-mono"
+                />
+                <p className="text-[10px] text-slate-500 mt-1">Essa senha será configurada para o login do cliente.</p>
+              </div>
+
+              <div className="pt-4 border-t border-slate-850 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsVincularModalOpen(false)}
+                  className="bg-transparent hover:bg-slate-850 text-slate-400 hover:text-slate-100 py-2 px-4 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={vincularLoading}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-5 rounded-xl text-xs font-bold transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  {vincularLoading ? 'Vinculando...' : 'Salvar e Vincular'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
