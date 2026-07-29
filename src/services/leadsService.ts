@@ -24,39 +24,91 @@ export const leadsService = {
     // Tentar inferir o empresa_id da sessão ativa do usuário logado
     let empresaId = lead.empresa_id;
     if (!empresaId) {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.user_metadata?.empresa_id) {
-        empresaId = session.user.user_metadata.empresa_id;
-      }
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.user_metadata?.empresa_id) {
+          empresaId = session.user.user_metadata.empresa_id;
+        }
+      } catch (e) {}
     }
+
+    const baseData: any = {
+      nome: lead.nome,
+      email: lead.email,
+      telefone: lead.telefone,
+      cidade: lead.cidade,
+      area_m2: lead.area_m2,
+      valor_estimado: lead.valor_estimado || 0,
+      materiais_previstos: lead.materiais_previstos || [],
+      observacoes: lead.observacoes || null,
+      status: lead.status || 'Novo',
+      ...(empresaId && { empresa_id: empresaId }),
+    };
+
+    // 1. Tentar inserção completa com endereco_obra, cep, numero, tipo_servico
+    const payloadCompleto: any = {
+      ...baseData,
+      endereco_obra: lead.endereco_obra || null,
+      cep: lead.cep || null,
+      numero: lead.numero || null,
+      tipo_servico: lead.tipo_servico || null,
+    };
 
     const { data, error } = await supabase
       .from('leads')
-      .insert([
-        {
-          nome: lead.nome,
-          email: lead.email,
-          telefone: lead.telefone,
-          cidade: lead.cidade,
-          area_m2: lead.area_m2,
-          endereco_obra: lead.endereco_obra || null,
-          valor_estimado: lead.valor_estimado || 0,
-          materiais_previstos: lead.materiais_previstos || [],
-          observacoes: lead.observacoes || null,
-          status: lead.status || 'Novo',
-          cep: lead.cep || null,
-          numero: lead.numero || null,
-          tipo_servico: lead.tipo_servico || null,
-          ...(empresaId && { empresa_id: empresaId }),
-        },
-      ])
+      .insert([payloadCompleto])
       .select()
       .single();
 
-    if (error) {
-      throw new Error(error.message || 'Erro ao salvar o lead.');
+    if (!error && data) {
+      return data;
     }
-    return data;
+
+    console.warn('[leadsService] Erro ao inserir lead com payload completo:', error?.message);
+
+    // 2. Se falhar por causa da coluna 'endereco_obra', tentar com a coluna 'endereco'
+    if (error?.message?.includes('endereco_obra') || error?.message?.includes('schema cache')) {
+      const payloadComEndereco = {
+        ...baseData,
+        endereco: lead.endereco_obra || null,
+        cep: lead.cep || null,
+        numero: lead.numero || null,
+        tipo_servico: lead.tipo_servico || null,
+      };
+
+      const { data: data2, error: error2 } = await supabase
+        .from('leads')
+        .insert([payloadComEndereco])
+        .select()
+        .single();
+
+      if (!error2 && data2) {
+        return data2;
+      }
+
+      console.warn('[leadsService] Erro ao inserir com coluna "endereco":', error2?.message);
+
+      // 3. Fallback de alta resiliência: tentar apenas com colunas essenciais existentes no banco
+      const payloadEssencial = {
+        ...baseData,
+        cidade: lead.cidade,
+        ...(lead.endereco_obra ? { observacoes: `Endereço: ${lead.endereco_obra}${lead.cep ? ` | CEP: ${lead.cep}` : ''}${lead.tipo_servico ? ` | Serviço: ${lead.tipo_servico}` : ''}` } : {}),
+      };
+
+      const { data: data3, error: error3 } = await supabase
+        .from('leads')
+        .insert([payloadEssencial])
+        .select()
+        .single();
+
+      if (!error3 && data3) {
+        return data3;
+      }
+
+      throw new Error(error3?.message || error2?.message || error?.message || 'Erro ao salvar o lead.');
+    }
+
+    throw new Error(error?.message || 'Erro ao salvar o lead.');
   },
 
   /**
