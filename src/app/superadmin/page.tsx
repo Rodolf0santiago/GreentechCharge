@@ -398,9 +398,10 @@ export default function SuperAdminDashboard() {
   const MRR = empresas
     .filter(emp => emp.status_assinatura === 'ativa')
     .reduce((acc, emp) => {
-      const base = emp.mensalidade_customizada !== null ? Number(emp.mensalidade_customizada) : 99.90;
+      const val = Number(emp.mensalidade_customizada);
+      const base = (emp.mensalidade_customizada !== null && emp.mensalidade_customizada !== undefined && !isNaN(val)) ? val : 99.90;
       const desc = Number(emp.desconto_mensal || 0);
-      return acc + Math.max(0, base - desc);
+      return acc + Math.max(0, base - (isNaN(desc) ? 0 : desc));
     }, 0);
 
   // Novas assinaturas no mês corrente (Junho 2026)
@@ -636,7 +637,7 @@ export default function SuperAdminDashboard() {
                           
                           <div className="text-[10px] text-slate-400 space-y-0.5">
                             <div>
-                              {emp.mensalidade_customizada !== null ? (
+                              {emp.mensalidade_customizada !== null && emp.mensalidade_customizada !== undefined && !isNaN(Number(emp.mensalidade_customizada)) ? (
                                 <span>Mensalidade: <span className="text-violet-400 font-semibold">R$ {Number(emp.mensalidade_customizada).toFixed(2)}</span></span>
                               ) : (
                                 <span>Mensalidade: R$ 99,90</span>
