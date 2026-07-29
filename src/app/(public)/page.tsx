@@ -206,68 +206,74 @@ export default function LandingPage() {
       <div className="absolute top-2/3 right-1/4 w-[600px] h-[600px] bg-[#00A9E0]/5 rounded-full blur-[130px] pointer-events-none z-0" />
 
       {/* Header / Nav */}
-      <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrollActive ? 'bg-[#0A0A0A]/95 backdrop-blur-md border-b border-neutral-900 glow-cyan/10 py-4' : 'bg-transparent py-6'}`}>
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <a href="#" className="flex items-center gap-2 group">
-            {/* Logo Image without White background (Larger size) */}
-            <TransparentLogo alt="Logo Greentech" className="w-14 h-14 object-contain transition-transform group-hover:scale-110" />
+      <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrollActive ? 'bg-[#060608]/90 backdrop-blur-xl border-b border-white/5 shadow-2xl shadow-black/80 py-3.5' : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent py-5'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
+          <a href="#" className="flex items-center gap-2.5 group shrink-0">
+            {/* Logo Image without White background */}
+            <TransparentLogo alt="Logo Greentech" className="w-11 h-11 sm:w-13 sm:h-13 object-contain transition-transform duration-300 group-hover:scale-105" />
             <div className="flex flex-col">
-              <span className="text-lg font-black tracking-wider text-white leading-none">GRUPO GREENTECH</span>
-              <span className="text-[9px] uppercase tracking-[0.35em] text-[#00A9E0] leading-none mt-1">Sustentabilidade & Energia</span>
+              <span className="text-base sm:text-lg font-black tracking-wider text-white leading-none">GRUPO GREENTECH</span>
+              <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.35em] text-[#00A9E0] leading-none mt-1 font-semibold">Sustentabilidade & Energia</span>
             </div>
           </a>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center space-x-8 text-sm font-semibold text-neutral-300">
-            <a href="#hero" className="hover:text-[#A4E83C] transition-colors">Início</a>
-            <a href="#servicos" className="hover:text-[#A4E83C] transition-colors">Serviços</a>
-            <a href="#condominios" className="hover:text-[#A4E83C] transition-colors">Condomínios</a>
-            <a href="#beneficios" className="hover:text-[#A4E83C] transition-colors">Benefícios</a>
-            <a href="#calculadora" className="hover:text-[#A4E83C] transition-colors">Simulador</a>
-            <a href="#portfolio" className="hover:text-[#A4E83C] transition-colors">Portfólio</a>
-            <a href="#depoimentos" className="hover:text-[#A4E83C] transition-colors">Depoimentos</a>
-            <a href="#tecnica" className="hover:text-[#A4E83C] transition-colors">Requisitos</a>
-            <a href="/login" className="px-4 py-1.5 rounded-full border border-[#00A9E0]/40 text-[#00A9E0] hover:bg-[#00A9E0] hover:text-black font-bold transition-all">Acessar CRM</a>
+          <nav className="hidden lg:flex items-center space-x-5 xl:space-x-7 text-[13px] xl:text-sm font-semibold text-neutral-300">
+            <a href="#hero" className="hover:text-[#A4E83C] transition-colors py-1">Início</a>
+            <a href="#servicos" className="hover:text-[#A4E83C] transition-colors py-1">Serviços</a>
+            <a href="#condominios" className="hover:text-[#A4E83C] transition-colors py-1">Condomínios</a>
+            <a href="#beneficios" className="hover:text-[#A4E83C] transition-colors py-1">Benefícios</a>
+            <a href="#calculadora" className="hover:text-[#A4E83C] transition-colors py-1">Simulador</a>
+            <a href="#portfolio" className="hover:text-[#A4E83C] transition-colors py-1">Portfólio</a>
+            <a href="#depoimentos" className="hover:text-[#A4E83C] transition-colors py-1">Depoimentos</a>
+            <a href="#tecnica" className="hover:text-[#A4E83C] transition-colors py-1">Requisitos</a>
           </nav>
 
-          <a
-            href="#orcamento"
-            className="hidden sm:inline-flex px-6 py-2.5 rounded-full bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black font-extrabold text-sm transition-all hover:scale-105 active:scale-95 duration-300"
-            style={{ boxShadow: '0 0 15px rgba(164, 232, 60, 0.3)' }}
-          >
-            Solicitar Orçamento
-          </a>
+          <div className="flex items-center gap-3 shrink-0">
+            <a
+              href="#orcamento"
+              className="hidden sm:inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black font-black text-xs sm:text-sm tracking-wide transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(164,232,60,0.4)] active:scale-95 duration-300"
+            >
+              <span>Solicitar Orçamento</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </a>
 
-          {/* Mobile Menu Button */}
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden p-2 text-white outline-none cursor-pointer">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {mobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16m-7 6h7" />
-              )}
-            </svg>
-          </button>
+            {/* Mobile Menu Button */}
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+              className="lg:hidden p-2 text-white hover:text-[#A4E83C] outline-none cursor-pointer transition-colors"
+              aria-label="Abrir menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {mobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16m-7 6h7" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu Panel */}
         {mobileMenuOpen && (
-          <div className="lg:hidden absolute top-20 left-0 w-full bg-[#0A0A0A]/95 border-b border-neutral-900 p-6 flex flex-col space-y-4 backdrop-blur-lg">
-            <a onClick={() => setMobileMenuOpen(false)} href="#hero" className="text-lg font-medium text-white hover:text-[#A4E83C]">Início</a>
-            <a onClick={() => setMobileMenuOpen(false)} href="#servicos" className="text-lg font-medium text-white hover:text-[#A4E83C]">Serviços</a>
-            <a onClick={() => setMobileMenuOpen(false)} href="#condominios" className="text-lg font-medium text-white hover:text-[#A4E83C]">Condomínios</a>
-            <a onClick={() => setMobileMenuOpen(false)} href="#beneficios" className="text-lg font-medium text-white hover:text-[#A4E83C]">Benefícios</a>
-            <a onClick={() => setMobileMenuOpen(false)} href="#calculadora" className="text-lg font-medium text-white hover:text-[#A4E83C]">Simulador</a>
-            <a onClick={() => setMobileMenuOpen(false)} href="#portfolio" className="text-lg font-medium text-white hover:text-[#A4E83C]">Portfólio</a>
-            <a onClick={() => setMobileMenuOpen(false)} href="#depoimentos" className="text-lg font-medium text-white hover:text-[#A4E83C]">Depoimentos</a>
-            <a onClick={() => setMobileMenuOpen(false)} href="#tecnica" className="text-lg font-medium text-white hover:text-[#A4E83C]">Requisitos</a>
-            <a onClick={() => setMobileMenuOpen(false)} href="/login" className="text-lg font-medium text-[#00A9E0] hover:text-white">Acessar CRM ➔</a>
+          <div className="lg:hidden absolute top-full left-0 w-full bg-[#0A0A0C]/98 border-b border-white/10 p-6 flex flex-col space-y-4 backdrop-blur-2xl shadow-2xl animate-fade-in">
+            <a onClick={() => setMobileMenuOpen(false)} href="#hero" className="text-base font-semibold text-white hover:text-[#A4E83C] transition-colors py-1 border-b border-white/5">Início</a>
+            <a onClick={() => setMobileMenuOpen(false)} href="#servicos" className="text-base font-semibold text-white hover:text-[#A4E83C] transition-colors py-1 border-b border-white/5">Serviços</a>
+            <a onClick={() => setMobileMenuOpen(false)} href="#condominios" className="text-base font-semibold text-white hover:text-[#A4E83C] transition-colors py-1 border-b border-white/5">Condomínios</a>
+            <a onClick={() => setMobileMenuOpen(false)} href="#beneficios" className="text-base font-semibold text-white hover:text-[#A4E83C] transition-colors py-1 border-b border-white/5">Benefícios</a>
+            <a onClick={() => setMobileMenuOpen(false)} href="#calculadora" className="text-base font-semibold text-white hover:text-[#A4E83C] transition-colors py-1 border-b border-white/5">Simulador</a>
+            <a onClick={() => setMobileMenuOpen(false)} href="#portfolio" className="text-base font-semibold text-white hover:text-[#A4E83C] transition-colors py-1 border-b border-white/5">Portfólio</a>
+            <a onClick={() => setMobileMenuOpen(false)} href="#depoimentos" className="text-base font-semibold text-white hover:text-[#A4E83C] transition-colors py-1 border-b border-white/5">Depoimentos</a>
+            <a onClick={() => setMobileMenuOpen(false)} href="#tecnica" className="text-base font-semibold text-white hover:text-[#A4E83C] transition-colors py-1 border-b border-white/5">Requisitos</a>
             <a
               onClick={() => setMobileMenuOpen(false)}
               href="#orcamento"
-              className="py-3 text-center rounded-xl bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black font-extrabold"
+              className="py-3 text-center rounded-xl bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black font-black text-sm shadow-lg shadow-[#A4E83C]/20"
             >
-              Solicitar Orçamento
+              Solicitar Orçamento ➔
             </a>
           </div>
         )}
