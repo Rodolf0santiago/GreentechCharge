@@ -28,20 +28,30 @@ async function getMestreUserContext(supabaseClient: ReturnType<typeof createServ
     throw new Error('Erro ao validar permissões do usuário.');
   }
 
-  if (profile.role !== 'mestre' && profile.role !== 'super_admin') {
-    throw new Error('Acesso negado: Permissão restrita ao proprietário da conta mestra.');
+  if (profile.role !== 'mestre' && profile.role !== 'admin' && profile.role !== 'super_admin') {
+    throw new Error('Acesso negado: Permissão restrita ao proprietário ou administrador da conta.');
   }
 
   if (profile.status_acesso === false) {
     throw new Error('Acesso negado: Seu usuário está bloqueado.');
   }
 
-  if (!profile.empresa_id) {
-    throw new Error('Nenhuma empresa vinculada a este usuário.');
+  let empresaId = profile.empresa_id;
+  if (!empresaId) {
+    const { data: firstEmpresa } = await supabaseClient
+      .from('empresas')
+      .select('id')
+      .limit(1)
+      .maybeSingle();
+    empresaId = firstEmpresa?.id;
+  }
+
+  if (!empresaId) {
+    throw new Error('Nenhuma empresa cadastrada no sistema.');
   }
 
   return {
-    empresa_id: profile.empresa_id,
+    empresa_id: empresaId,
     email: profile.email || user.email || ''
   };
 }
@@ -55,12 +65,12 @@ export async function getFaturamentoDados() {
     const context = await getMestreUserContext(supabase);
 
     // 1. Buscar a empresa para verificar o status de assinatura atual
+    // Tenta primeiro com as colunas base seguras
     const { data: empresa, error: empresaError } = await supabase
       .from('empresas')
-      .select('id, nome_fantasia, status_assinatura, assinatura_mp_id, mensalidade_customizada, desconto_mensal, motivo_desconto')
+      .select('id, nome_fantasia, status_assinatura, assinatura_mp_id')
       .eq('id', context.empresa_id)
       .single();
-
 
     if (empresaError || !empresa) {
       console.error('Erro ao buscar empresa:', empresaError);

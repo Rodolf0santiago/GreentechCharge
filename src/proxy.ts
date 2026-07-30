@@ -79,10 +79,11 @@ export async function proxy(request: NextRequest) {
           }
 
           if (normalizedRole === 'mestre' || normalizedRole === 'admin') {
-            const allowedPath = '/dashboard/mestre/configuracoes/assinatura';
-            if (!pathname.startsWith(allowedPath)) {
+            const isAssinatura = pathname.startsWith('/dashboard/mestre/configuracoes/assinatura');
+            const isConfig = pathname === '/configuracoes' || pathname.startsWith('/configuracoes/');
+            if (!isAssinatura && !isConfig) {
               console.log(`[Proxy] Empresa inadimplente/bloqueada. Redirecionando mestre ${user.email} para tela de assinatura`);
-              return NextResponse.redirect(new URL(`${allowedPath}?pendente=true`, request.url));
+              return NextResponse.redirect(new URL('/dashboard/mestre/configuracoes/assinatura?pendente=true', request.url));
             }
           }
         }

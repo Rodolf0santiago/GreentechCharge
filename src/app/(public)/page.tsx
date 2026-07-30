@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import LeadForm from '@/components/public/lead-form';
 import WhatsAppButton from '@/components/public/whatsapp-button';
 import EconomyCalculator from '@/components/public/economy-calculator';
-import { getLandingPageData, PortfolioProject, Testimonial } from '@/app/actions/landingPage';
+import { getDadosPublicosSite, PortfolioProject, Testimonial } from '@/app/actions/sitePublico';
 
 // Componente auxiliar para remover fundo branco do logo de forma dinâmica via Canvas
 function TransparentLogo({ className, alt }: { className?: string; alt: string }) {
@@ -124,6 +124,8 @@ export default function LandingPage() {
   const [scrollActive, setScrollActive] = useState(false);
   const [portfolio, setPortfolio] = useState<PortfolioProject[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [whatsappPhone, setWhatsappPhone] = useState('5548991948635');
+  const [cnpj, setCnpj] = useState('');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -140,11 +142,13 @@ export default function LandingPage() {
   useEffect(() => {
     async function loadDynamicData() {
       try {
-        const data = await getLandingPageData();
-        setPortfolio(data.projects);
-        setTestimonials(data.testimonials);
+        const data = await getDadosPublicosSite();
+        setPortfolio(data.site_portfolio);
+        setTestimonials(data.site_testimonials);
+        if (data.whatsapp_responsavel) setWhatsappPhone(data.whatsapp_responsavel);
+        if (data.cnpj) setCnpj(data.cnpj);
       } catch (err) {
-        console.error('Erro ao carregar dados do portfólio/depoimentos:', err);
+        console.error('Erro ao carregar dados do site:', err);
       }
     }
     loadDynamicData();
@@ -902,7 +906,12 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-neutral-950 bg-[#020202] py-12 relative z-10 text-center text-xs text-neutral-500">
         <div className="max-w-7xl mx-auto px-6 space-y-4">
-          <p>© 2026 Grupo Greentech. Todos os direitos reservados. Instalação e Integração de Mobilidade Verde.</p>
+          <p>© {new Date().getFullYear()} Grupo Greentech. Todos os direitos reservados. Instalação e Integração de Mobilidade Verde.</p>
+          {cnpj && (
+            <p className="text-neutral-600">
+              CNPJ: {cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5')}
+            </p>
+          )}
           <div className="flex justify-center space-x-6 text-neutral-600 flex-wrap gap-y-2">
             <a href="#hero" className="hover:text-white transition-colors">Início</a>
             <span>•</span>
@@ -923,8 +932,11 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* Floating WhatsApp Button */}
-      <WhatsAppButton />
+      {/* Floating WhatsApp Button — número dinâmico do banco */}
+      <WhatsAppButton
+        phone={whatsappPhone}
+        message="Olá! Gostaria de solicitar um orçamento para o Grupo Greentech."
+      />
     </div>
   );
 }

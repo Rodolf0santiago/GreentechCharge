@@ -1,9 +1,20 @@
 import React from 'react';
 
-export default function WhatsAppButton() {
+interface WhatsAppButtonProps {
+  phone?: string;
+  message?: string;
+}
+
+export default function WhatsAppButton({
+  phone = '5548991948635',
+  message = 'Olá! Gostaria de solicitar um orçamento para o Grupo Greentech.',
+}: WhatsAppButtonProps) {
+  const encodedMessage = encodeURIComponent(message);
+  const href = `https://wa.me/${phone}?text=${encodedMessage}`;
+
   return (
     <a
-      href="https://wa.me/5548991948635?text=Olá!%20Gostaria%20de%20solicitar%20um%20orçamento%20para%20o%20Grupo%20Greentech."
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Falar no WhatsApp"
