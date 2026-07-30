@@ -26,6 +26,8 @@ export interface DadosPublicosSite {
   nome_fantasia: string;
   cnpj: string;
   whatsapp_responsavel: string | null;
+  regiao_atendimento: string;
+  instagram_handle: string;
   site_portfolio: PortfolioProject[];
   site_testimonials: Testimonial[];
 }
@@ -40,6 +42,8 @@ export async function getDadosPublicosSite(): Promise<DadosPublicosSite> {
     nome_fantasia: 'Greentech Charge',
     cnpj: '',
     whatsapp_responsavel: '5548991948635',
+    regiao_atendimento: 'Florianópolis e Região',
+    instagram_handle: '@greentechcharge',
     site_portfolio: [
       {
         id: '1',
@@ -88,7 +92,7 @@ export async function getDadosPublicosSite(): Promise<DadosPublicosSite> {
     // Busca a primeira empresa ativa (produto single-tenant)
     const { data, error } = await supabase
       .from('empresas')
-      .select('nome_fantasia, cnpj, whatsapp_responsavel, site_portfolio, site_testimonials')
+      .select('nome_fantasia, cnpj, whatsapp_responsavel, regiao_atendimento, instagram_handle, site_portfolio, site_testimonials')
       .neq('status_assinatura', 'cancelada')
       .order('criado_em', { ascending: true })
       .limit(1)
@@ -111,6 +115,8 @@ export async function getDadosPublicosSite(): Promise<DadosPublicosSite> {
       nome_fantasia: data.nome_fantasia ?? DEFAULT.nome_fantasia,
       cnpj: data.cnpj ?? '',
       whatsapp_responsavel: data.whatsapp_responsavel ?? DEFAULT.whatsapp_responsavel,
+      regiao_atendimento: data.regiao_atendimento ?? DEFAULT.regiao_atendimento,
+      instagram_handle: data.instagram_handle ?? DEFAULT.instagram_handle,
       site_portfolio: portfolio,
       site_testimonials: testimonials,
     };

@@ -36,6 +36,8 @@ export default function ConfiguracoesPage() {
   const [nomeFantasia, setNomeFantasia] = useState('');
   const [cnpj, setCnpj] = useState('');
   const [whatsappResponsavel, setWhatsappResponsavel] = useState('');
+  const [regiaoAtendimento, setRegiaoAtendimento] = useState('');
+  const [instagramHandle, setInstagramHandle] = useState('');
   const [isSavingEmpresa, setIsSavingEmpresa] = useState(false);
 
   // ─── Landing Page ────────────────────────────────────────────────────────────
@@ -72,6 +74,8 @@ export default function ConfiguracoesPage() {
           setNomeFantasia(siteRes.data.nome_fantasia);
           setCnpj(formatCNPJ(siteRes.data.cnpj));
           setWhatsappResponsavel(formatPhone(siteRes.data.whatsapp_responsavel ?? ''));
+          setRegiaoAtendimento(siteRes.data.regiao_atendimento || 'Florianópolis e Região');
+          setInstagramHandle(siteRes.data.instagram_handle || '@greentechcharge');
           setPortfolio(siteRes.data.site_portfolio);
           setTestimonials(siteRes.data.site_testimonials);
         }
@@ -121,9 +125,11 @@ export default function ConfiguracoesPage() {
         nome_fantasia: nomeFantasia,
         cnpj: cnpj,
         whatsapp_responsavel: whatsappResponsavel,
+        regiao_atendimento: regiaoAtendimento,
+        instagram_handle: instagramHandle,
       });
       if (res.success) {
-        showToast('✅ Dados da empresa atualizados com sucesso!', 'success');
+        showToast('✅ Dados da empresa e redes do site atualizados com sucesso!', 'success');
       } else {
         showToast(res.error || 'Erro ao salvar dados da empresa.', 'error');
       }
@@ -355,6 +361,32 @@ export default function ConfiguracoesPage() {
                 </svg>
                 Contato Público do Site
               </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-1">
+                  <label className={labelClass}>Região / Cidade de Atendimento</label>
+                  <input
+                    type="text"
+                    value={regiaoAtendimento}
+                    onChange={e => setRegiaoAtendimento(e.target.value)}
+                    placeholder="Ex: Florianópolis e Região"
+                    className={inputClass}
+                  />
+                  <p className="text-[10px] text-gray-400">Exibido na seção "Solicite seu Orçamento" do site público.</p>
+                </div>
+
+                <div className="space-y-1">
+                  <label className={labelClass}>Instagram da Empresa</label>
+                  <input
+                    type="text"
+                    value={instagramHandle}
+                    onChange={e => setInstagramHandle(e.target.value)}
+                    placeholder="Ex: @greentechcharge"
+                    className={inputClass}
+                  />
+                  <p className="text-[10px] text-gray-400">Nome de usuário do Instagram exibido no site público.</p>
+                </div>
+              </div>
 
               <div className="space-y-1">
                 <label className={labelClass}>

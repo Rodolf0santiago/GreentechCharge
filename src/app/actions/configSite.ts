@@ -30,6 +30,8 @@ export interface ConfigSite {
   nome_fantasia: string;
   cnpj: string;
   whatsapp_responsavel: string | null;
+  regiao_atendimento: string;
+  instagram_handle: string;
   site_portfolio: PortfolioProject[];
   site_testimonials: Testimonial[];
 }
@@ -90,7 +92,7 @@ export async function getConfigSite(): Promise<{
     // Tenta buscar com colunas novas; se a migration ainda não foi aplicada, usa fallback
     const { data: fullData, error: fullError } = await supabase
       .from('empresas')
-      .select('id, nome_fantasia, cnpj, whatsapp_responsavel, site_portfolio, site_testimonials')
+      .select('id, nome_fantasia, cnpj, whatsapp_responsavel, regiao_atendimento, instagram_handle, site_portfolio, site_testimonials')
       .eq('id', empresaId)
       .single();
 
@@ -98,28 +100,24 @@ export async function getConfigSite(): Promise<{
 
     if (fullError) {
       // Fallback: migration ainda não aplicada — busca apenas colunas base
-      const isMissingColumn =
-        fullError.message?.includes('whatsapp_responsavel') ||
-        fullError.message?.includes('site_portfolio') ||
-        fullError.message?.includes('site_testimonials') ||
-        fullError.code === '42703';
+      const { data: baseData, error: baseError } = await supabase
+        .from('empresas')
+        .select('id, nome_fantasia, cnpj')
+        .eq('id', empresaId)
+        .single();
 
-      if (isMissingColumn) {
-        const { data: baseData, error: baseError } = await supabase
-          .from('empresas')
-          .select('id, nome_fantasia, cnpj')
-          .eq('id', empresaId)
-          .single();
-
-        if (baseError || !baseData) {
-          console.error('[getConfigSite] Erro ao buscar empresa (fallback):', baseError);
-          return { success: false, error: 'Empresa não encontrada.' };
-        }
-        data = { ...baseData, whatsapp_responsavel: null, site_portfolio: [], site_testimonials: [] };
-      } else {
-        console.error('[getConfigSite] Erro ao buscar empresa:', fullError);
+      if (baseError || !baseData) {
+        console.error('[getConfigSite] Erro ao buscar empresa (fallback):', baseError);
         return { success: false, error: 'Empresa não encontrada.' };
       }
+      data = {
+        ...baseData,
+        whatsapp_responsavel: null,
+        regiao_atendimento: 'Florianópolis e Região',
+        instagram_handle: '@greentechcharge',
+        site_portfolio: [],
+        site_testimonials: [],
+      };
     }
 
     return {
@@ -129,6 +127,8 @@ export async function getConfigSite(): Promise<{
         nome_fantasia: data.nome_fantasia ?? '',
         cnpj: data.cnpj ?? '',
         whatsapp_responsavel: data.whatsapp_responsavel ?? null,
+        regiao_atendimento: data.regiao_atendimento ?? 'Florianópolis e Região',
+        instagram_handle: data.instagram_handle ?? '@greentechcharge',
         site_portfolio: (data.site_portfolio as PortfolioProject[]) ?? [],
         site_testimonials: (data.site_testimonials as Testimonial[]) ?? [],
       },
@@ -140,12 +140,14 @@ export async function getConfigSite(): Promise<{
 }
 
 /**
- * Salva dados cadastrais da empresa (nome, cnpj, whatsapp).
+ * Salva dados cadastrais da empresa (nome, cnpj, whatsapp, região, instagram).
  */
 export async function saveDadosEmpresa(dados: {
   nome_fantasia: string;
   cnpj: string;
   whatsapp_responsavel: string;
+  regiao_atendimento: string;
+  instagram_handle: string;
 }): Promise<{ success: boolean; error?: string }> {
   try {
     const empresaId = await getEmpresaIdFromSession();
@@ -164,6 +166,8 @@ export async function saveDadosEmpresa(dados: {
         nome_fantasia: dados.nome_fantasia.trim(),
         cnpj: dados.cnpj.replace(/\D/g, ''),
         whatsapp_responsavel: dados.whatsapp_responsavel.replace(/\D/g, '') || null,
+        regiao_atendimento: dados.regiao_atendimento.trim() || 'Florianópolis e Região',
+        instagram_handle: dados.instagram_handle.trim() || '@greentechcharge',
       })
       .eq('id', empresaId);
 

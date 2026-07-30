@@ -126,6 +126,8 @@ export default function LandingPage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [whatsappPhone, setWhatsappPhone] = useState('5548991948635');
   const [cnpj, setCnpj] = useState('');
+  const [regiaoAtendimento, setRegiaoAtendimento] = useState('Florianópolis e Região');
+  const [instagramHandle, setInstagramHandle] = useState('@greentechcharge');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -147,6 +149,8 @@ export default function LandingPage() {
         setTestimonials(data.site_testimonials);
         if (data.whatsapp_responsavel) setWhatsappPhone(data.whatsapp_responsavel);
         if (data.cnpj) setCnpj(data.cnpj);
+        if (data.regiao_atendimento) setRegiaoAtendimento(data.regiao_atendimento);
+        if (data.instagram_handle) setInstagramHandle(data.instagram_handle);
       } catch (err) {
         console.error('Erro ao carregar dados do site:', err);
       }
@@ -819,7 +823,7 @@ export default function LandingPage() {
               {/* Regional Contacts List */}
               <div className="space-y-6">
                 
-                {/* Florianópolis */}
+                {/* Região / Telefone */}
                 <div className="flex items-start gap-4">
                   <div className="p-3.5 rounded-xl bg-neutral-900 border border-neutral-800 text-[#A4E83C] mt-1 shadow-lg shadow-black/50">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -827,18 +831,19 @@ export default function LandingPage() {
                     </svg>
                   </div>
                   <div>
-                    <h4 className="text-xs uppercase tracking-widest text-[#00A9E0] font-bold">Florianópolis e Região</h4>
+                    <h4 className="text-xs uppercase tracking-widest text-[#00A9E0] font-bold">{regiaoAtendimento}</h4>
                     <a
-                      href="https://wa.me/5548991948635"
+                      href={`https://wa.me/${whatsappPhone.replace(/\D/g, '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-lg font-black text-white hover:text-[#A4E83C] transition-colors block mt-1"
                     >
-                      (48) 99194-8635
+                      {whatsappPhone.length === 11 || whatsappPhone.length === 13
+                        ? whatsappPhone.replace(/^(\d{2})?(\d{2})(\d{5})(\d{4})$/, '($2) $3-$4')
+                        : whatsappPhone}
                     </a>
                   </div>
                 </div>
-
 
                 {/* Instagram */}
                 <div className="flex items-start gap-4">
@@ -852,12 +857,12 @@ export default function LandingPage() {
                   <div>
                     <h4 className="text-xs uppercase tracking-widest text-[#00A9E0] font-bold">Siga no Instagram</h4>
                     <a
-                      href="https://instagram.com/greentechcharge"
+                      href={`https://instagram.com/${instagramHandle.replace('@', '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-lg font-black text-white hover:text-[#A4E83C] transition-colors block mt-1"
                     >
-                      @greentechcharge
+                      {instagramHandle.startsWith('@') ? instagramHandle : `@${instagramHandle}`}
                     </a>
                   </div>
                 </div>
