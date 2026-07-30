@@ -65,22 +65,23 @@ export default function EconomyCalculator({ initialTab = 'solar' }: EconomyCalcu
       {/* Visual Accent gradient lines */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#A4E83C] to-[#00A9E0]" />
       
-      {/* Tabs / Direct Switchers */}
-      <div className="flex flex-col sm:flex-row justify-center items-center mb-10 gap-3">
-        <div className="bg-black/80 border border-neutral-800 p-2 rounded-2xl flex flex-wrap justify-center gap-2 shadow-xl">
+      {/* Tabs / Switcher */}
+      <div className="flex flex-col sm:flex-row justify-center items-center mb-10">
+        <div className="bg-black/90 border border-neutral-800/90 p-2 rounded-2xl flex flex-col sm:flex-row gap-2 shadow-2xl backdrop-blur-xl">
           <button
             id="btn-tab-solar"
             onClick={() => {
               setActiveTab('solar');
               window.history.replaceState(null, '', '#calculadora-solar');
             }}
-            className={`px-6 py-3 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center gap-2 ${
+            className={`px-7 py-3.5 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center justify-center gap-2.5 ${
               activeTab === 'solar'
-                ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-lg shadow-[#A4E83C]/20 scale-105'
-                : 'text-neutral-400 hover:text-white bg-neutral-900/50 hover:bg-neutral-800'
+                ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-[0_0_25px_rgba(164,232,60,0.4)] scale-105 ring-2 ring-[#A4E83C]/30'
+                : 'text-neutral-400 hover:text-white bg-neutral-900/60 hover:bg-neutral-800/80 border border-transparent hover:border-neutral-700'
             }`}
           >
-            ☀️ Calculadora Energia Solar
+            <span className="text-base">☀️</span>
+            <span>Calculadora Energia Solar</span>
           </button>
           <button
             id="btn-tab-ev"
@@ -88,13 +89,14 @@ export default function EconomyCalculator({ initialTab = 'solar' }: EconomyCalcu
               setActiveTab('ev');
               window.history.replaceState(null, '', '#calculadora-ev');
             }}
-            className={`px-6 py-3 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center gap-2 ${
+            className={`px-7 py-3.5 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center justify-center gap-2.5 ${
               activeTab === 'ev'
-                ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-lg shadow-[#00A9E0]/20 scale-105'
-                : 'text-neutral-400 hover:text-white bg-neutral-900/50 hover:bg-neutral-800'
+                ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-[0_0_25px_rgba(0,169,224,0.4)] scale-105 ring-2 ring-[#00A9E0]/30'
+                : 'text-neutral-400 hover:text-white bg-neutral-900/60 hover:bg-neutral-800/80 border border-transparent hover:border-neutral-700'
             }`}
           >
-            ⚡ Calculadora Carregamento Veicular
+            <span className="text-base">⚡</span>
+            <span>Calculadora Carregamento Veicular</span>
           </button>
         </div>
       </div>
