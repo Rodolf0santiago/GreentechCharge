@@ -10,6 +10,7 @@ export interface PortfolioProject {
   clientName: string;
   location: string;
   imageUrl: string;
+  images?: string[];
 }
 
 export interface Testimonial {
@@ -18,6 +19,7 @@ export interface Testimonial {
   role: string;
   comment: string;
   rating: number;
+  avatarUrl?: string;
 }
 
 export interface DadosPublicosSite {
