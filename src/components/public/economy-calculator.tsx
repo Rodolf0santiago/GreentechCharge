@@ -2,8 +2,26 @@
 
 import React, { useState } from 'react';
 
-export default function EconomyCalculator() {
-  const [activeTab, setActiveTab] = useState<'solar' | 'ev'>('solar');
+interface EconomyCalculatorProps {
+  initialTab?: 'solar' | 'ev';
+}
+
+export default function EconomyCalculator({ initialTab = 'solar' }: EconomyCalculatorProps) {
+  const [activeTab, setActiveTab] = useState<'solar' | 'ev'>(initialTab);
+
+  React.useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash;
+      if (hash === '#calculadora-solar') {
+        setActiveTab('solar');
+      } else if (hash === '#calculadora-ev') {
+        setActiveTab('ev');
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
 
   // Solar States
   const [contaMensal, setContaMensal] = useState<number>(800); // R$
@@ -47,28 +65,36 @@ export default function EconomyCalculator() {
       {/* Visual Accent gradient lines */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#A4E83C] to-[#00A9E0]" />
       
-      {/* Tabs */}
-      <div className="flex justify-center mb-10">
-        <div className="bg-black/60 border border-neutral-800 p-1.5 rounded-full flex gap-2">
+      {/* Tabs / Direct Switchers */}
+      <div className="flex flex-col sm:flex-row justify-center items-center mb-10 gap-3">
+        <div className="bg-black/80 border border-neutral-800 p-2 rounded-2xl flex flex-wrap justify-center gap-2 shadow-xl">
           <button
-            onClick={() => setActiveTab('solar')}
-            className={`px-6 py-2.5 rounded-full text-xs md:text-sm font-extrabold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+            id="btn-tab-solar"
+            onClick={() => {
+              setActiveTab('solar');
+              window.history.replaceState(null, '', '#calculadora-solar');
+            }}
+            className={`px-6 py-3 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center gap-2 ${
               activeTab === 'solar'
-                ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-lg shadow-[#00A9E0]/20'
-                : 'text-neutral-450 hover:text-white'
+                ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-lg shadow-[#A4E83C]/20 scale-105'
+                : 'text-neutral-400 hover:text-white bg-neutral-900/50 hover:bg-neutral-800'
             }`}
           >
-            ☀️ Energia Solar
+            ☀️ Calculadora Energia Solar
           </button>
           <button
-            onClick={() => setActiveTab('ev')}
-            className={`px-6 py-2.5 rounded-full text-xs md:text-sm font-extrabold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+            id="btn-tab-ev"
+            onClick={() => {
+              setActiveTab('ev');
+              window.history.replaceState(null, '', '#calculadora-ev');
+            }}
+            className={`px-6 py-3 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center gap-2 ${
               activeTab === 'ev'
-                ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-lg shadow-[#00A9E0]/20'
-                : 'text-neutral-450 hover:text-white'
+                ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-lg shadow-[#00A9E0]/20 scale-105'
+                : 'text-neutral-400 hover:text-white bg-neutral-900/50 hover:bg-neutral-800'
             }`}
           >
-            ⚡ Greentech Charge
+            ⚡ Calculadora Carregamento Veicular
           </button>
         </div>
       </div>

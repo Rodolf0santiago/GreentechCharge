@@ -335,19 +335,26 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6 z-10 relative">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-6 z-10 relative">
             <a
-              href="#orcamento"
-              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black font-extrabold rounded-xl transition-all shadow-xl hover:scale-105 duration-300"
-              style={{ boxShadow: '0 0 25px rgba(164, 232, 60, 0.4)' }}
+              href="#calculadora-solar"
+              className="w-full sm:w-auto px-6 py-4 bg-gradient-to-r from-[#A4E83C] to-[#00cba0] text-black font-black rounded-xl transition-all shadow-xl hover:scale-105 duration-300 text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2"
+              style={{ boxShadow: '0 0 25px rgba(164, 232, 60, 0.35)' }}
             >
-              Simular Projeto
+              ☀️ Calculadora Solar
             </a>
             <a
-              href="#servicos"
-              className="w-full sm:w-auto px-8 py-4 bg-neutral-900/60 hover:bg-neutral-800 text-white border border-neutral-800 hover:border-neutral-700 font-extrabold rounded-xl transition-all duration-300 backdrop-blur-sm"
+              href="#calculadora-ev"
+              className="w-full sm:w-auto px-6 py-4 bg-gradient-to-r from-[#00cba0] to-[#00A9E0] text-black font-black rounded-xl transition-all shadow-xl hover:scale-105 duration-300 text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2"
+              style={{ boxShadow: '0 0 25px rgba(0, 169, 224, 0.35)' }}
             >
-              Saiba Mais ➔
+              ⚡ Calculadora Carregamento
+            </a>
+            <a
+              href="#orcamento"
+              className="w-full sm:w-auto px-6 py-4 bg-neutral-900/80 hover:bg-neutral-800 text-white border border-neutral-700 hover:border-[#A4E83C]/40 font-extrabold rounded-xl transition-all duration-300 backdrop-blur-sm text-xs sm:text-sm uppercase tracking-wider"
+            >
+              Solicitar Orçamento ➔
             </a>
           </div>
         </div>
@@ -631,6 +638,20 @@ export default function LandingPage() {
             <p className="text-neutral-400">
               Descubra quanto você pode economizar migrando para a energia solar e abastecendo seu carro elétrico com a Greentech.
             </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
+              <a
+                href="#calculadora-solar"
+                className="px-6 py-3.5 rounded-xl bg-[#A4E83C]/10 border border-[#A4E83C]/40 text-[#A4E83C] hover:bg-[#A4E83C] hover:text-black font-black text-xs md:text-sm uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-[#A4E83C]/10"
+              >
+                ☀️ Calculadora Energia Solar
+              </a>
+              <a
+                href="#calculadora-ev"
+                className="px-6 py-3.5 rounded-xl bg-[#00A9E0]/10 border border-[#00A9E0]/40 text-[#00A9E0] hover:bg-[#00A9E0] hover:text-black font-black text-xs md:text-sm uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-[#00A9E0]/10"
+              >
+                ⚡ Calculadora Carregamento Veicular
+              </a>
+            </div>
           </div>
 
           <EconomyCalculator />
