@@ -699,6 +699,7 @@ export async function getMinhasPermissoesAbas(roleName: string): Promise<Permiss
     projetos: roleName === 'admin' || roleName === 'mestre' || roleName === 'vendedor',
     equipe: roleName === 'admin' || roleName === 'mestre',
     eficiencia: roleName === 'admin' || roleName === 'mestre',
+    configuracoes: roleName === 'admin' || roleName === 'mestre',
   };
 
   try {
@@ -720,6 +721,10 @@ export async function getMinhasPermissoesAbas(roleName: string): Promise<Permiss
     }
 
     const perms = data as PermissoesAbas;
+    if (perms.configuracoes === undefined) {
+      perms.configuracoes = roleName === 'admin' || roleName === 'mestre';
+    }
+
     // Forçar restrição total de abas para técnicos/instaladores conforme solicitado pelo cliente
     if (roleName === 'tecnico' || roleName === 'instalador') {
       perms.dashboard = false;
@@ -728,10 +733,11 @@ export async function getMinhasPermissoesAbas(roleName: string): Promise<Permiss
       perms.projetos = false;
       perms.equipe = false;
       perms.eficiencia = false;
+      perms.configuracoes = false;
     }
 
     return perms;
-  } catch (err) {
+  } catch (err: any) {
     console.warn('Erro ao ler permissões. Usando padrão estático:', err);
     return defaultPerms;
   }

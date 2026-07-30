@@ -17,6 +17,7 @@ const getStaticPermissions = (roleName: string | null): PermissoesAbas => {
       projetos: false,
       equipe: false,
       eficiencia: false,
+      configuracoes: false,
     };
   }
   return {
@@ -27,6 +28,7 @@ const getStaticPermissions = (roleName: string | null): PermissoesAbas => {
     projetos: r === 'admin' || r === 'mestre' || r === 'vendedor',
     equipe: r === 'admin' || r === 'mestre',
     eficiencia: r === 'admin' || r === 'mestre',
+    configuracoes: r === 'admin' || r === 'mestre',
   };
 };
 
