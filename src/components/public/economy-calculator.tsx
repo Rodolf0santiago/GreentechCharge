@@ -4,18 +4,30 @@ import React, { useState } from 'react';
 
 interface EconomyCalculatorProps {
   initialTab?: 'solar' | 'ev';
+  activeTab?: 'solar' | 'ev';
+  onTabChange?: (tab: 'solar' | 'ev') => void;
 }
 
-export default function EconomyCalculator({ initialTab = 'solar' }: EconomyCalculatorProps) {
-  const [activeTab, setActiveTab] = useState<'solar' | 'ev'>(initialTab);
+export default function EconomyCalculator({
+  initialTab = 'solar',
+  activeTab: controlledTab,
+  onTabChange,
+}: EconomyCalculatorProps = {}) {
+  const [internalTab, setInternalTab] = useState<'solar' | 'ev'>(initialTab);
+  const currentTab = controlledTab ?? internalTab;
+
+  const handleTabChange = (tab: 'solar' | 'ev') => {
+    setInternalTab(tab);
+    onTabChange?.(tab);
+  };
 
   React.useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash;
       if (hash === '#calculadora-solar') {
-        setActiveTab('solar');
+        handleTabChange('solar');
       } else if (hash === '#calculadora-ev') {
-        setActiveTab('ev');
+        handleTabChange('ev');
       }
     };
     handleHash();
@@ -69,6 +81,7 @@ export default function EconomyCalculator({ initialTab = 'solar' }: EconomyCalcu
       <div className="flex flex-col sm:flex-row justify-center items-center mb-10">
         <div className="bg-black/90 border border-neutral-800/90 p-2 rounded-2xl flex flex-col sm:flex-row gap-2 shadow-2xl backdrop-blur-xl">
           <button
+<<<<<<< HEAD
             id="btn-tab-solar"
             onClick={() => {
               setActiveTab('solar');
@@ -78,12 +91,20 @@ export default function EconomyCalculator({ initialTab = 'solar' }: EconomyCalcu
               activeTab === 'solar'
                 ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-[0_0_25px_rgba(164,232,60,0.4)] scale-105 ring-2 ring-[#A4E83C]/30'
                 : 'text-neutral-400 hover:text-white bg-neutral-900/60 hover:bg-neutral-800/80 border border-transparent hover:border-neutral-700'
+=======
+            onClick={() => handleTabChange('solar')}
+            className={`px-6 py-2.5 rounded-full text-xs md:text-sm font-extrabold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+              currentTab === 'solar'
+                ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-lg shadow-[#00A9E0]/20'
+                : 'text-neutral-450 hover:text-white'
+>>>>>>> 70a8482 (feat: adicionar e integrar botoes Calc. Solar e Calc. Veicular na navegacao com scroll e selecao de aba)
             }`}
           >
             <span className="text-base">☀️</span>
             <span>Calculadora Energia Solar</span>
           </button>
           <button
+<<<<<<< HEAD
             id="btn-tab-ev"
             onClick={() => {
               setActiveTab('ev');
@@ -93,6 +114,13 @@ export default function EconomyCalculator({ initialTab = 'solar' }: EconomyCalcu
               activeTab === 'ev'
                 ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-[0_0_25px_rgba(0,169,224,0.4)] scale-105 ring-2 ring-[#00A9E0]/30'
                 : 'text-neutral-400 hover:text-white bg-neutral-900/60 hover:bg-neutral-800/80 border border-transparent hover:border-neutral-700'
+=======
+            onClick={() => handleTabChange('ev')}
+            className={`px-6 py-2.5 rounded-full text-xs md:text-sm font-extrabold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+              currentTab === 'ev'
+                ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-lg shadow-[#00A9E0]/20'
+                : 'text-neutral-450 hover:text-white'
+>>>>>>> 70a8482 (feat: adicionar e integrar botoes Calc. Solar e Calc. Veicular na navegacao com scroll e selecao de aba)
             }`}
           >
             <span className="text-base">⚡</span>
@@ -104,7 +132,7 @@ export default function EconomyCalculator({ initialTab = 'solar' }: EconomyCalcu
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
         {/* Inputs (Left) */}
         <div className="lg:col-span-6 space-y-8">
-          {activeTab === 'solar' ? (
+          {currentTab === 'solar' ? (
             <div className="space-y-6">
               <div>
                 <h3 className="text-xl md:text-2xl font-black text-white">Simule sua Geração Solar</h3>
@@ -213,7 +241,7 @@ export default function EconomyCalculator({ initialTab = 'solar' }: EconomyCalcu
             {/* Ambient Background decoration */}
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#00A9E0]/10 rounded-full blur-2xl" />
             
-            {activeTab === 'solar' ? (
+            {currentTab === 'solar' ? (
               <div className="space-y-6">
                 <div>
                   <span className="text-xs uppercase font-extrabold tracking-widest text-[#00A9E0]">Seus Resultados</span>
