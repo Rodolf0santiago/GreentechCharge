@@ -237,7 +237,7 @@ export default function LandingPage() {
           </a>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center space-x-3 xl:space-x-5 text-[12px] xl:text-xs font-semibold text-neutral-300">
+          <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6 text-[13px] xl:text-sm font-semibold text-neutral-300">
             <a href="#hero" className="hover:text-[#A4E83C] transition-colors py-1">Início</a>
             <a href="#servicos" className="hover:text-[#A4E83C] transition-colors py-1">Serviços</a>
             <a href="#condominios" className="hover:text-[#A4E83C] transition-colors py-1">Condomínios</a>
@@ -246,36 +246,20 @@ export default function LandingPage() {
             <a href="#portfolio" className="hover:text-[#A4E83C] transition-colors py-1">Portfólio</a>
             <a href="#depoimentos" className="hover:text-[#A4E83C] transition-colors py-1">Depoimentos</a>
             <a href="#tecnica" className="hover:text-[#A4E83C] transition-colors py-1">Requisitos</a>
-            <a
-              href="#calculadora"
-              onClick={(e) => handleCalcClick('solar', e)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#A4E83C]/40 bg-[#A4E83C]/10 text-[#A4E83C] hover:bg-[#A4E83C]/25 hover:scale-105 transition-all font-bold text-xs cursor-pointer shadow-sm shrink-0"
-            >
-              <span>🌞</span>
-              <span>Calc. Solar</span>
-            </a>
-            <a
-              href="#calculadora"
-              onClick={(e) => handleCalcClick('ev', e)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#00A9E0]/40 bg-[#00A9E0]/10 text-[#00A9E0] hover:bg-[#00A9E0]/25 hover:scale-105 transition-all font-bold text-xs cursor-pointer shadow-sm shrink-0"
-            >
-              <span>⚡</span>
-              <span>Calc. Veicular</span>
-            </a>
           </nav>
 
           <div className="flex items-center gap-2.5 shrink-0">
             <a
               href="#calculadora"
               onClick={(e) => handleCalcClick('solar', e)}
-              className="hidden xl:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[#A4E83C]/40 bg-[#A4E83C]/10 text-[#A4E83C] hover:bg-[#A4E83C] hover:text-black font-extrabold text-xs tracking-wider transition-all duration-300 hover:scale-105 hover:shadow-[0_0_18px_rgba(164,232,60,0.35)] active:scale-95 cursor-pointer"
+              className="hidden lg:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[#A4E83C]/40 bg-[#A4E83C]/10 text-[#A4E83C] hover:bg-[#A4E83C] hover:text-black font-extrabold text-xs tracking-wider transition-all duration-300 hover:scale-105 hover:shadow-[0_0_18px_rgba(164,232,60,0.35)] active:scale-95 cursor-pointer"
             >
               <span>☀️ Calc. Solar</span>
             </a>
             <a
               href="#calculadora"
               onClick={(e) => handleCalcClick('ev', e)}
-              className="hidden xl:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[#00A9E0]/40 bg-[#00A9E0]/10 text-[#00A9E0] hover:bg-[#00A9E0] hover:text-black font-extrabold text-xs tracking-wider transition-all duration-300 hover:scale-105 hover:shadow-[0_0_18px_rgba(0,169,224,0.35)] active:scale-95 cursor-pointer"
+              className="hidden lg:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[#00A9E0]/40 bg-[#00A9E0]/10 text-[#00A9E0] hover:bg-[#00A9E0] hover:text-black font-extrabold text-xs tracking-wider transition-all duration-300 hover:scale-105 hover:shadow-[0_0_18px_rgba(0,169,224,0.35)] active:scale-95 cursor-pointer"
             >
               <span>⚡ Calc. Veicular</span>
             </a>
