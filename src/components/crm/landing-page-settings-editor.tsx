@@ -50,7 +50,7 @@ export default function LandingPageSettingsEditor({
   const [partnerName, setPartnerName] = useState('');
   const [partnerLogoUrl, setPartnerLogoUrl] = useState('');
   const [partnerLogoPreset, setPartnerLogoPreset] = useState('/partners/bosch.svg');
-  const [partnerImageMode, setPartnerImageMode] = useState<'preset' | 'url'>('preset');
+  const [partnerImageMode, setPartnerImageMode] = useState<'upload' | 'preset' | 'url'>('upload');
   const [partnerWebsiteUrl, setPartnerWebsiteUrl] = useState('');
   const [showPartnerForm, setShowPartnerForm] = useState(false);
 
@@ -200,15 +200,37 @@ export default function LandingPageSettingsEditor({
   };
 
   // PARTNER ACTIONS
-  const getEffectivePartnerLogoUrl = () =>
-    partnerImageMode === 'url' ? partnerLogoUrl.trim() : partnerLogoPreset;
+  const getEffectivePartnerLogoUrl = () => {
+    if (partnerImageMode === 'preset') return partnerLogoPreset;
+    return partnerLogoUrl.trim();
+  };
+
+  const handlePartnerImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('O arquivo de imagem deve ter no máximo 5MB.', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      if (dataUrl) {
+        setPartnerLogoUrl(dataUrl);
+        setPartnerImageMode('upload');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   const startAddPartner = () => {
     setEditingPartnerId(null);
     setPartnerName('');
     setPartnerLogoUrl('');
     setPartnerLogoPreset('/partners/bosch.svg');
-    setPartnerImageMode('preset');
+    setPartnerImageMode('upload');
     setPartnerWebsiteUrl('');
     setShowPartnerForm(true);
   };
@@ -216,10 +238,19 @@ export default function LandingPageSettingsEditor({
   const startEditPartner = (p: PartnerLogo) => {
     setEditingPartnerId(p.id);
     setPartnerName(p.name);
-    const isPreset = p.logoUrl.startsWith('/');
-    setPartnerImageMode(isPreset ? 'preset' : 'url');
-    setPartnerLogoPreset(isPreset ? p.logoUrl : '/partners/bosch.svg');
-    setPartnerLogoUrl(isPreset ? '' : p.logoUrl);
+    const isPreset = p.logoUrl.startsWith('/partners/');
+    const isUrl = p.logoUrl.startsWith('http://') || p.logoUrl.startsWith('https://');
+    if (isPreset) {
+      setPartnerImageMode('preset');
+      setPartnerLogoPreset(p.logoUrl);
+      setPartnerLogoUrl('');
+    } else if (isUrl) {
+      setPartnerImageMode('url');
+      setPartnerLogoUrl(p.logoUrl);
+    } else {
+      setPartnerImageMode('upload');
+      setPartnerLogoUrl(p.logoUrl);
+    }
     setPartnerWebsiteUrl(p.websiteUrl || '');
     setShowPartnerForm(true);
   };
@@ -805,32 +836,103 @@ export default function LandingPageSettingsEditor({
             </div>
 
             {/* Selector para Logomarca */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <label className={labelClass}>Imagem da Logomarca *</label>
-              <div className="flex gap-4 text-xs mb-2">
-                <label className="flex items-center gap-1.5 cursor-pointer text-gray-700 font-semibold">
-                  <input
-                    type="radio"
-                    name="partnerImageMode"
-                    checked={partnerImageMode === 'preset'}
-                    onChange={() => setPartnerImageMode('preset')}
-                    className="accent-orange-500"
-                  />
-                  Selecionar dos Presets
-                </label>
-                <label className="flex items-center gap-1.5 cursor-pointer text-gray-700 font-semibold">
-                  <input
-                    type="radio"
-                    name="partnerImageMode"
-                    checked={partnerImageMode === 'url'}
-                    onChange={() => setPartnerImageMode('url')}
-                    className="accent-orange-500"
-                  />
-                  URL Personalizada / Upload
-                </label>
+
+              {/* Mode Selector Tabs */}
+              <div className="flex flex-wrap gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setPartnerImageMode('upload')}
+                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    partnerImageMode === 'upload'
+                      ? 'bg-orange-500 text-white shadow-sm'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                  Enviar Imagem (Upload)
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPartnerImageMode('preset')}
+                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    partnerImageMode === 'preset'
+                      ? 'bg-orange-500 text-white shadow-sm'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 002-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Logomarcas Prontas (Presets)
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPartnerImageMode('url')}
+                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    partnerImageMode === 'url'
+                      ? 'bg-orange-500 text-white shadow-sm'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  Link de Imagem (URL)
+                </button>
               </div>
 
-              {partnerImageMode === 'preset' ? (
+              {/* Mode 1: File Upload Box */}
+              {partnerImageMode === 'upload' && (
+                <div className="space-y-3">
+                  <div className="border-2 border-dashed border-orange-300 hover:border-orange-500 bg-white hover:bg-orange-50/50 rounded-2xl p-6 transition-all text-center flex flex-col items-center justify-center cursor-pointer relative group">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePartnerImageFile}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    <div className="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                      </svg>
+                    </div>
+                    <p className="text-sm font-extrabold text-orange-950">
+                      Clique aqui para selecionar a imagem da logo do seu arquivo
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Suporta PNG, JPG, WEBP e SVG (máximo 5MB)
+                    </p>
+                  </div>
+
+                  {partnerLogoUrl && (
+                    <div className="flex items-center gap-4 p-3 bg-white border border-green-200 rounded-xl shadow-sm">
+                      <div className="w-16 h-16 rounded-lg border border-gray-100 bg-gray-50 p-1 flex items-center justify-center shrink-0 overflow-hidden">
+                        <img src={partnerLogoUrl} alt="Preview Logo" className="max-h-full max-w-full object-contain" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-gray-900 truncate">Imagem selecionada com sucesso!</p>
+                        <p className="text-[10px] text-green-600 font-bold">✓ Pronta para ser salva</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setPartnerLogoUrl('')}
+                        className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                      >
+                        Remover
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Mode 2: Presets */}
+              {partnerImageMode === 'preset' && (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <button
                     type="button"
@@ -857,14 +959,25 @@ export default function LandingPageSettingsEditor({
                     <span className="text-[10px] font-bold text-gray-700">JBS</span>
                   </button>
                 </div>
-              ) : (
-                <input
-                  type="text"
-                  value={partnerLogoUrl}
-                  onChange={e => setPartnerLogoUrl(e.target.value)}
-                  placeholder="https://exemplo.com/logo-parceiro.png"
-                  className={inputClass}
-                />
+              )}
+
+              {/* Mode 3: Custom URL */}
+              {partnerImageMode === 'url' && (
+                <div className="space-y-2">
+                  <input
+                    type="url"
+                    value={partnerLogoUrl}
+                    onChange={e => setPartnerLogoUrl(e.target.value)}
+                    placeholder="https://exemplo.com/sua-logo.png"
+                    className={inputClass}
+                  />
+                  {partnerLogoUrl && (
+                    <div className="flex items-center gap-3 p-2 bg-gray-50 border rounded-lg">
+                      <img src={partnerLogoUrl} alt="Preview" className="h-8 max-w-[80px] object-contain" />
+                      <span className="text-[11px] text-gray-600 truncate">{partnerLogoUrl}</span>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 
