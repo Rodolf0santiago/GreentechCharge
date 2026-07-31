@@ -134,19 +134,20 @@ export default function ConfiguracoesPage() {
     setIsSavingEmpresa(true);
     try {
       const res = await saveDadosEmpresa({
-        nome_fantasia: nomeFantasia,
-        cnpj: cnpj,
-        whatsapp_responsavel: whatsappResponsavel,
-        regiao_atendimento: regiaoAtendimento,
-        instagram_handle: instagramHandle,
+        nome_fantasia: nomeFantasia || 'Greentech Charge',
+        cnpj: cnpj || '',
+        whatsapp_responsavel: whatsappResponsavel || '',
+        regiao_atendimento: regiaoAtendimento || 'Florianópolis e Região',
+        instagram_handle: instagramHandle || '@greentechcharge',
       });
       if (res.success) {
         showToast('✅ Dados da empresa e redes do site atualizados com sucesso!', 'success');
       } else {
         showToast(res.error || 'Erro ao salvar dados da empresa.', 'error');
       }
-    } catch {
-      showToast('Erro de conexão ao salvar.', 'error');
+    } catch (err: any) {
+      console.error('[handleSaveEmpresa] Exceção:', err);
+      showToast(err?.message || 'Erro de conexão ao salvar.', 'error');
     } finally {
       setIsSavingEmpresa(false);
     }

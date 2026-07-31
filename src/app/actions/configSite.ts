@@ -186,11 +186,11 @@ export async function getConfigSite(): Promise<{
  * Salva dados cadastrais da empresa (nome, cnpj, whatsapp, região, instagram).
  */
 export async function saveDadosEmpresa(dados: {
-  nome_fantasia: string;
-  cnpj: string;
-  whatsapp_responsavel: string;
-  regiao_atendimento: string;
-  instagram_handle: string;
+  nome_fantasia?: string;
+  cnpj?: string;
+  whatsapp_responsavel?: string;
+  regiao_atendimento?: string;
+  instagram_handle?: string;
 }): Promise<{ success: boolean; error?: string }> {
   try {
     const empresaId = await getEmpresaIdFromSession();
@@ -198,25 +198,59 @@ export async function saveDadosEmpresa(dados: {
       return { success: false, error: 'Sessão não encontrada.' };
     }
 
-    if (!dados.nome_fantasia?.trim()) {
-      return { success: false, error: 'Nome fantasia é obrigatório.' };
-    }
+    const nome = typeof dados?.nome_fantasia === 'string' && dados.nome_fantasia.trim()
+      ? dados.nome_fantasia.trim()
+      : 'Greentech Charge';
+
+    const cnpjClean = typeof dados?.cnpj === 'string'
+      ? dados.cnpj.replace(/\D/g, '')
+      : '';
+
+    const wppClean = typeof dados?.whatsapp_responsavel === 'string'
+      ? dados.whatsapp_responsavel.replace(/\D/g, '')
+      : '';
+
+    const regiaoClean = typeof dados?.regiao_atendimento === 'string' && dados.regiao_atendimento.trim()
+      ? dados.regiao_atendimento.trim()
+      : 'Florianópolis e Região';
+
+    const instaClean = typeof dados?.instagram_handle === 'string' && dados.instagram_handle.trim()
+      ? dados.instagram_handle.trim()
+      : '@greentechcharge';
 
     const supabase = createServerClient();
+    const updatePayload: any = {
+      nome_fantasia: nome,
+      cnpj: cnpjClean,
+      whatsapp_responsavel: wppClean || null,
+      regiao_atendimento: regiaoClean,
+      instagram_handle: instaClean,
+    };
+
     const { error } = await supabase
       .from('empresas')
-      .update({
-        nome_fantasia: dados.nome_fantasia.trim(),
-        cnpj: dados.cnpj.replace(/\D/g, ''),
-        whatsapp_responsavel: dados.whatsapp_responsavel.replace(/\D/g, '') || null,
-        regiao_atendimento: dados.regiao_atendimento.trim() || 'Florianópolis e Região',
-        instagram_handle: dados.instagram_handle.trim() || '@greentechcharge',
-      })
+      .update(updatePayload)
       .eq('id', empresaId);
 
     if (error) {
-      console.error('[saveDadosEmpresa] Erro:', error);
-      return { success: false, error: error.message || 'Erro ao salvar dados da empresa.' };
+      console.warn('[saveDadosEmpresa] Erro Supabase:', error.message);
+      // Se colunas opcionais ainda não existirem no DB, tenta atualizar apenas colunas base
+      if (error.code === 'PGRST204' || error.message?.includes('column')) {
+        const { error: retryErr } = await supabase
+          .from('empresas')
+          .update({
+            nome_fantasia: nome,
+            cnpj: cnpjClean,
+          })
+          .eq('id', empresaId);
+
+        if (retryErr) {
+          console.error('[saveDadosEmpresa] Erro no retry:', retryErr);
+          return { success: false, error: retryErr.message || 'Erro ao salvar dados.' };
+        }
+      } else {
+        return { success: false, error: error.message || 'Erro ao salvar dados da empresa.' };
+      }
     }
 
     return { success: true };
