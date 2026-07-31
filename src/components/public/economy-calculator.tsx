@@ -81,46 +81,30 @@ export default function EconomyCalculator({
       <div className="flex flex-col sm:flex-row justify-center items-center mb-10">
         <div className="bg-black/90 border border-neutral-800/90 p-2 rounded-2xl flex flex-col sm:flex-row gap-2 shadow-2xl backdrop-blur-xl">
           <button
-<<<<<<< HEAD
             id="btn-tab-solar"
             onClick={() => {
-              setActiveTab('solar');
+              handleTabChange('solar');
               window.history.replaceState(null, '', '#calculadora-solar');
             }}
             className={`px-7 py-3.5 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center justify-center gap-2.5 ${
-              activeTab === 'solar'
+              currentTab === 'solar'
                 ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-[0_0_25px_rgba(164,232,60,0.4)] scale-105 ring-2 ring-[#A4E83C]/30'
                 : 'text-neutral-400 hover:text-white bg-neutral-900/60 hover:bg-neutral-800/80 border border-transparent hover:border-neutral-700'
-=======
-            onClick={() => handleTabChange('solar')}
-            className={`px-6 py-2.5 rounded-full text-xs md:text-sm font-extrabold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-              currentTab === 'solar'
-                ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-lg shadow-[#00A9E0]/20'
-                : 'text-neutral-450 hover:text-white'
->>>>>>> 70a8482 (feat: adicionar e integrar botoes Calc. Solar e Calc. Veicular na navegacao com scroll e selecao de aba)
             }`}
           >
             <span className="text-base">☀️</span>
             <span>Calculadora Energia Solar</span>
           </button>
           <button
-<<<<<<< HEAD
             id="btn-tab-ev"
             onClick={() => {
-              setActiveTab('ev');
+              handleTabChange('ev');
               window.history.replaceState(null, '', '#calculadora-ev');
             }}
             className={`px-7 py-3.5 rounded-xl text-xs md:text-sm font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center justify-center gap-2.5 ${
-              activeTab === 'ev'
+              currentTab === 'ev'
                 ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-[0_0_25px_rgba(0,169,224,0.4)] scale-105 ring-2 ring-[#00A9E0]/30'
                 : 'text-neutral-400 hover:text-white bg-neutral-900/60 hover:bg-neutral-800/80 border border-transparent hover:border-neutral-700'
-=======
-            onClick={() => handleTabChange('ev')}
-            className={`px-6 py-2.5 rounded-full text-xs md:text-sm font-extrabold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-              currentTab === 'ev'
-                ? 'bg-gradient-to-r from-[#A4E83C] to-[#00A9E0] text-black shadow-lg shadow-[#00A9E0]/20'
-                : 'text-neutral-450 hover:text-white'
->>>>>>> 70a8482 (feat: adicionar e integrar botoes Calc. Solar e Calc. Veicular na navegacao com scroll e selecao de aba)
             }`}
           >
             <span className="text-base">⚡</span>
