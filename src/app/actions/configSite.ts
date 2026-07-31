@@ -25,6 +25,26 @@ export interface Testimonial {
   avatarUrl?: string;
 }
 
+export interface PartnerLogo {
+  id: string;
+  name: string;
+  logoUrl: string;
+  websiteUrl?: string;
+}
+
+export const DEFAULT_PARTNERS: PartnerLogo[] = [
+  {
+    id: '1',
+    name: 'Bosch Service',
+    logoUrl: '/partners/bosch.svg',
+  },
+  {
+    id: '2',
+    name: 'JBS',
+    logoUrl: '/partners/jbs.svg',
+  },
+];
+
 export interface ConfigSite {
   empresa_id: string;
   nome_fantasia: string;
@@ -34,6 +54,7 @@ export interface ConfigSite {
   instagram_handle: string;
   site_portfolio: PortfolioProject[];
   site_testimonials: Testimonial[];
+  site_partners: PartnerLogo[];
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -92,7 +113,7 @@ export async function getConfigSite(): Promise<{
     // Tenta buscar com colunas novas; se a migration ainda não foi aplicada, usa fallback
     const { data: fullData, error: fullError } = await supabase
       .from('empresas')
-      .select('id, nome_fantasia, cnpj, whatsapp_responsavel, regiao_atendimento, instagram_handle, site_portfolio, site_testimonials')
+      .select('id, nome_fantasia, cnpj, whatsapp_responsavel, regiao_atendimento, instagram_handle, site_portfolio, site_testimonials, site_partners')
       .eq('id', empresaId)
       .single();
 
@@ -117,8 +138,13 @@ export async function getConfigSite(): Promise<{
         instagram_handle: '@greentechcharge',
         site_portfolio: [],
         site_testimonials: [],
+        site_partners: DEFAULT_PARTNERS,
       };
     }
+
+    const partners = Array.isArray(data.site_partners) && data.site_partners.length > 0
+      ? (data.site_partners as PartnerLogo[])
+      : DEFAULT_PARTNERS;
 
     return {
       success: true,
@@ -131,6 +157,7 @@ export async function getConfigSite(): Promise<{
         instagram_handle: data.instagram_handle ?? '@greentechcharge',
         site_portfolio: (data.site_portfolio as PortfolioProject[]) ?? [],
         site_testimonials: (data.site_testimonials as Testimonial[]) ?? [],
+        site_partners: partners,
       },
     };
   } catch (err: any) {
@@ -189,6 +216,7 @@ export async function saveDadosEmpresa(dados: {
 export async function saveSiteContent(dados: {
   portfolio: PortfolioProject[];
   testimonials: Testimonial[];
+  partners?: PartnerLogo[];
 }): Promise<{ success: boolean; error?: string }> {
   try {
     const empresaId = await getEmpresaIdFromSession();
@@ -201,12 +229,17 @@ export async function saveSiteContent(dados: {
     }
 
     const supabase = createServerClient();
+    const updatePayload: any = {
+      site_portfolio: dados.portfolio,
+      site_testimonials: dados.testimonials,
+    };
+    if (dados.partners && Array.isArray(dados.partners)) {
+      updatePayload.site_partners = dados.partners;
+    }
+
     const { error } = await supabase
       .from('empresas')
-      .update({
-        site_portfolio: dados.portfolio,
-        site_testimonials: dados.testimonials,
-      })
+      .update(updatePayload)
       .eq('id', empresaId);
 
     if (error) {

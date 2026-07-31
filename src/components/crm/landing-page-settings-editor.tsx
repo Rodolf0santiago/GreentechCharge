@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { saveSiteContent, PortfolioProject, Testimonial } from '@/app/actions/configSite';
+import { saveSiteContent, PortfolioProject, Testimonial, PartnerLogo } from '@/app/actions/configSite';
 
 interface LandingPageSettingsEditorProps {
   portfolio: PortfolioProject[];
   setPortfolio: React.Dispatch<React.SetStateAction<PortfolioProject[]>>;
   testimonials: Testimonial[];
   setTestimonials: React.Dispatch<React.SetStateAction<Testimonial[]>>;
+  partners: PartnerLogo[];
+  setPartners: React.Dispatch<React.SetStateAction<PartnerLogo[]>>;
   showToast: (msg: string, type?: 'success' | 'error') => void;
 }
 
@@ -16,6 +18,8 @@ export default function LandingPageSettingsEditor({
   setPortfolio,
   testimonials,
   setTestimonials,
+  partners,
+  setPartners,
   showToast,
 }: LandingPageSettingsEditorProps) {
   const [isSaving, setIsSaving] = useState(false);
@@ -40,6 +44,15 @@ export default function LandingPageSettingsEditor({
   const [testRating, setTestRating] = useState<number>(5);
   const [testAvatarUrl, setTestAvatarUrl] = useState('');
   const [showTestForm, setShowTestForm] = useState(false);
+
+  // States for Partner Form
+  const [editingPartnerId, setEditingPartnerId] = useState<string | null>(null);
+  const [partnerName, setPartnerName] = useState('');
+  const [partnerLogoUrl, setPartnerLogoUrl] = useState('');
+  const [partnerLogoPreset, setPartnerLogoPreset] = useState('/partners/bosch.svg');
+  const [partnerImageMode, setPartnerImageMode] = useState<'preset' | 'url'>('preset');
+  const [partnerWebsiteUrl, setPartnerWebsiteUrl] = useState('');
+  const [showPartnerForm, setShowPartnerForm] = useState(false);
 
   const getEffectiveImageUrl = () =>
     imageMode === 'url' ? projectImageUrl.trim() : projectImagePreset;
@@ -186,6 +199,75 @@ export default function LandingPageSettingsEditor({
     }
   };
 
+  // PARTNER ACTIONS
+  const getEffectivePartnerLogoUrl = () =>
+    partnerImageMode === 'url' ? partnerLogoUrl.trim() : partnerLogoPreset;
+
+  const startAddPartner = () => {
+    setEditingPartnerId(null);
+    setPartnerName('');
+    setPartnerLogoUrl('');
+    setPartnerLogoPreset('/partners/bosch.svg');
+    setPartnerImageMode('preset');
+    setPartnerWebsiteUrl('');
+    setShowPartnerForm(true);
+  };
+
+  const startEditPartner = (p: PartnerLogo) => {
+    setEditingPartnerId(p.id);
+    setPartnerName(p.name);
+    const isPreset = p.logoUrl.startsWith('/');
+    setPartnerImageMode(isPreset ? 'preset' : 'url');
+    setPartnerLogoPreset(isPreset ? p.logoUrl : '/partners/bosch.svg');
+    setPartnerLogoUrl(isPreset ? '' : p.logoUrl);
+    setPartnerWebsiteUrl(p.websiteUrl || '');
+    setShowPartnerForm(true);
+  };
+
+  const savePartner = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!partnerName.trim()) {
+      showToast('O nome do parceiro é obrigatório.', 'error');
+      return;
+    }
+    const logoUrl = getEffectivePartnerLogoUrl();
+    if (!logoUrl) {
+      showToast('Selecione ou insira uma imagem de logomarca.', 'error');
+      return;
+    }
+
+    if (editingPartnerId) {
+      setPartners(prev =>
+        prev.map(p =>
+          p.id === editingPartnerId
+            ? {
+                ...p,
+                name: partnerName.trim(),
+                logoUrl,
+                websiteUrl: partnerWebsiteUrl.trim() || undefined,
+              }
+            : p
+        )
+      );
+    } else {
+      const newPartner: PartnerLogo = {
+        id: Date.now().toString(),
+        name: partnerName.trim(),
+        logoUrl,
+        websiteUrl: partnerWebsiteUrl.trim() || undefined,
+      };
+      setPartners(prev => [...prev, newPartner]);
+    }
+    setShowPartnerForm(false);
+    setEditingPartnerId(null);
+  };
+
+  const deletePartner = (id: string) => {
+    if (confirm('Tem certeza que deseja remover esta logomarca de parceiro do site?')) {
+      setPartners(prev => prev.filter(p => p.id !== id));
+    }
+  };
+
   // SAVE ALL TO SUPABASE
   const handleSaveAll = async () => {
     setIsSaving(true);
@@ -193,6 +275,7 @@ export default function LandingPageSettingsEditor({
       const res = await saveSiteContent({
         portfolio,
         testimonials,
+        partners,
       });
 
       if (res.success) {
@@ -665,6 +748,183 @@ export default function LandingPageSettingsEditor({
           {testimonials.length === 0 && (
             <p className="col-span-2 text-center text-xs text-gray-400 italic py-8 bg-gray-50 rounded-xl">
               Nenhum depoimento cadastrado.
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* SECTION 3: PARCEIROS & MARCAS */}
+      <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm space-y-6">
+        <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+          <div>
+            <h2 className="text-base font-bold text-gray-950 flex items-center gap-2">
+              🤝 Nossos Parceiros (Logomarcas & Marcas)
+            </h2>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Gerencie as logomarcas dos parceiros e clientes corporativos exibidos no site público.
+            </p>
+          </div>
+          <button
+            onClick={startAddPartner}
+            className="px-3.5 py-2 bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+          >
+            <span>+ Adicionar Parceiro</span>
+          </button>
+        </div>
+
+        {/* Partner Form */}
+        {showPartnerForm && (
+          <form onSubmit={savePartner} className="p-4 bg-orange-50/60 border border-orange-150 rounded-xl space-y-4">
+            <h3 className="text-xs font-bold text-orange-950 uppercase tracking-wider">
+              {editingPartnerId ? 'Editar Parceiro' : 'Adicionar Novo Parceiro'}
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className={labelClass}>Nome do Parceiro *</label>
+                <input
+                  type="text"
+                  value={partnerName}
+                  onChange={e => setPartnerName(e.target.value)}
+                  placeholder="Ex: Bosch Service, JBS, WEG"
+                  className={inputClass}
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className={labelClass}>Link do Site do Parceiro (Opcional)</label>
+                <input
+                  type="url"
+                  value={partnerWebsiteUrl}
+                  onChange={e => setPartnerWebsiteUrl(e.target.value)}
+                  placeholder="Ex: https://www.bosch.com.br"
+                  className={inputClass}
+                />
+              </div>
+            </div>
+
+            {/* Selector para Logomarca */}
+            <div className="space-y-2">
+              <label className={labelClass}>Imagem da Logomarca *</label>
+              <div className="flex gap-4 text-xs mb-2">
+                <label className="flex items-center gap-1.5 cursor-pointer text-gray-700 font-semibold">
+                  <input
+                    type="radio"
+                    name="partnerImageMode"
+                    checked={partnerImageMode === 'preset'}
+                    onChange={() => setPartnerImageMode('preset')}
+                    className="accent-orange-500"
+                  />
+                  Selecionar dos Presets
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer text-gray-700 font-semibold">
+                  <input
+                    type="radio"
+                    name="partnerImageMode"
+                    checked={partnerImageMode === 'url'}
+                    onChange={() => setPartnerImageMode('url')}
+                    className="accent-orange-500"
+                  />
+                  URL Personalizada / Upload
+                </label>
+              </div>
+
+              {partnerImageMode === 'preset' ? (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setPartnerLogoPreset('/partners/bosch.svg')}
+                    className={`p-3 border rounded-xl flex flex-col items-center justify-center gap-2 bg-white transition-all cursor-pointer ${
+                      partnerLogoPreset === '/partners/bosch.svg'
+                        ? 'border-orange-500 ring-2 ring-orange-200 bg-orange-50/30'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <img src="/partners/bosch.svg" alt="Bosch" className="h-10 object-contain" />
+                    <span className="text-[10px] font-bold text-gray-700">Bosch Service</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPartnerLogoPreset('/partners/jbs.svg')}
+                    className={`p-3 border rounded-xl flex flex-col items-center justify-center gap-2 bg-white transition-all cursor-pointer ${
+                      partnerLogoPreset === '/partners/jbs.svg'
+                        ? 'border-orange-500 ring-2 ring-orange-200 bg-orange-50/30'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <img src="/partners/jbs.svg" alt="JBS" className="h-10 object-contain" />
+                    <span className="text-[10px] font-bold text-gray-700">JBS</span>
+                  </button>
+                </div>
+              ) : (
+                <input
+                  type="text"
+                  value={partnerLogoUrl}
+                  onChange={e => setPartnerLogoUrl(e.target.value)}
+                  placeholder="https://exemplo.com/logo-parceiro.png"
+                  className={inputClass}
+                />
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPartnerForm(false);
+                  setEditingPartnerId(null);
+                }}
+                className="px-4 py-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg text-xs font-bold transition-all cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-bold transition-all cursor-pointer"
+              >
+                Confirmar
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* Partners Grid List */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {partners && partners.map((p: PartnerLogo) => (
+            <div
+              key={p.id}
+              className="p-4 border border-gray-150 rounded-xl flex flex-col items-center justify-between hover:border-orange-200 transition-colors bg-gray-50/40"
+            >
+              <div className="flex flex-col items-center gap-2 w-full">
+                <div className="h-14 w-full flex items-center justify-center p-1 bg-white rounded-lg border border-gray-100">
+                  <img src={p.logoUrl} alt={p.name} className="max-h-full max-w-full object-contain" />
+                </div>
+                <h4 className="text-xs font-bold text-gray-900 text-center line-clamp-1 mt-1">{p.name}</h4>
+                {p.websiteUrl && (
+                  <span className="text-[10px] text-orange-600 truncate max-w-full font-medium">{p.websiteUrl}</span>
+                )}
+              </div>
+
+              <div className="flex gap-2 justify-center pt-3 border-t border-gray-100 w-full mt-3">
+                <button
+                  onClick={() => startEditPartner(p)}
+                  className="px-2.5 py-1 text-[11px] font-bold text-blue-600 hover:bg-blue-50 rounded transition-colors cursor-pointer"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => deletePartner(p.id)}
+                  className="px-2.5 py-1 text-[11px] font-bold text-rose-600 hover:bg-rose-50 rounded transition-colors cursor-pointer"
+                >
+                  Excluir
+                </button>
+              </div>
+            </div>
+          ))}
+          {(!partners || partners.length === 0) && (
+            <p className="col-span-full text-center text-xs text-gray-400 italic py-8 bg-gray-50 rounded-xl">
+              Nenhum parceiro cadastrado. Clique em "+ Adicionar Parceiro" acima.
             </p>
           )}
         </div>

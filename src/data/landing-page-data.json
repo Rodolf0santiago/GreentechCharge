@@ -44,5 +44,17 @@
       "rating": 5,
       "avatarUrl": ""
     }
+  ],
+  "partners": [
+    {
+      "id": "1",
+      "name": "Bosch Service",
+      "logoUrl": "/partners/bosch.svg"
+    },
+    {
+      "id": "2",
+      "name": "JBS",
+      "logoUrl": "/partners/jbs.svg"
+    }
   ]
 }

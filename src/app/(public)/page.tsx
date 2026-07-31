@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import LeadForm from '@/components/public/lead-form';
 import WhatsAppButton from '@/components/public/whatsapp-button';
 import EconomyCalculator from '@/components/public/economy-calculator';
-import { getDadosPublicosSite, PortfolioProject, Testimonial } from '@/app/actions/sitePublico';
+import { getDadosPublicosSite, PortfolioProject, Testimonial, PartnerLogo } from '@/app/actions/sitePublico';
 
 // Componente auxiliar para remover fundo branco do logo de forma dinâmica via Canvas
 function TransparentLogo({ className, alt }: { className?: string; alt: string }) {
@@ -124,6 +124,7 @@ export default function LandingPage() {
   const [scrollActive, setScrollActive] = useState(false);
   const [portfolio, setPortfolio] = useState<PortfolioProject[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [partners, setPartners] = useState<PartnerLogo[]>([]);
   const [whatsappPhone, setWhatsappPhone] = useState('5548991948635');
   const [cnpj, setCnpj] = useState('');
   const [regiaoAtendimento, setRegiaoAtendimento] = useState('Florianópolis e Região');
@@ -158,6 +159,7 @@ export default function LandingPage() {
         const data = await getDadosPublicosSite();
         setPortfolio(data.site_portfolio);
         setTestimonials(data.site_testimonials);
+        if (data.site_partners) setPartners(data.site_partners);
         if (data.whatsapp_responsavel) setWhatsappPhone(data.whatsapp_responsavel);
         if (data.cnpj) setCnpj(data.cnpj);
         if (data.regiao_atendimento) setRegiaoAtendimento(data.regiao_atendimento);
@@ -237,8 +239,9 @@ export default function LandingPage() {
           </a>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6 text-[13px] xl:text-sm font-semibold text-neutral-300">
+          <nav className="hidden lg:flex items-center space-x-3 xl:space-x-5 text-[13px] xl:text-sm font-semibold text-neutral-300">
             <a href="#hero" className="hover:text-[#A4E83C] transition-colors py-1">Início</a>
+            <a href="#parceiros" className="hover:text-[#A4E83C] transition-colors py-1">Parceiros</a>
             <a href="#servicos" className="hover:text-[#A4E83C] transition-colors py-1">Serviços</a>
             <a href="#condominios" className="hover:text-[#A4E83C] transition-colors py-1">Condomínios</a>
             <a href="#beneficios" className="hover:text-[#A4E83C] transition-colors py-1">Benefícios</a>
@@ -407,6 +410,58 @@ export default function LandingPage() {
           <span className="text-[10px] tracking-[0.3em] uppercase">Rolar para baixo</span>
           <div className="w-6 h-10 border-2 border-neutral-800 rounded-full flex justify-center p-1">
             <span className="w-1.5 h-1.5 bg-[#00A9E0] rounded-full animate-bounce" />
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO NOSSOS PARCEIROS */}
+      <section id="parceiros" className="py-14 md:py-20 border-t border-b border-white/5 bg-[#08080A]/80 backdrop-blur-md relative z-10 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-10 space-y-2.5">
+            <span className="text-xs uppercase tracking-[0.4em] text-[#A4E83C] font-bold">Confiança & Qualidade</span>
+            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">NOSSOS PARCEIROS</h2>
+            <p className="text-neutral-400 text-sm md:text-base">
+              Empresas e marcas de referência que confiam nas soluções de energia solar e recarga veicular do Grupo Greentech.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5 items-center justify-center">
+            {partners && partners.length > 0 ? (
+              partners.map((partner) => (
+                <div
+                  key={partner.id}
+                  className="glass-card p-4 sm:p-5 rounded-2xl border border-white/10 hover:border-[#00A9E0]/40 bg-neutral-900/60 hover:bg-neutral-900/90 transition-all duration-300 flex flex-col items-center justify-center group hover:scale-105 shadow-xl min-h-[110px]"
+                >
+                  {partner.websiteUrl ? (
+                    <a href={partner.websiteUrl} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2.5 w-full">
+                      <div className="h-14 w-full flex items-center justify-center p-1.5">
+                        <img
+                          src={partner.logoUrl}
+                          alt={`Logo ${partner.name}`}
+                          className="max-h-full max-w-full object-contain filter group-hover:brightness-110 transition-all duration-300"
+                        />
+                      </div>
+                      <span className="text-xs font-extrabold text-neutral-300 group-hover:text-[#A4E83C] transition-colors text-center line-clamp-1">{partner.name}</span>
+                    </a>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2.5 w-full">
+                      <div className="h-14 w-full flex items-center justify-center p-1.5">
+                        <img
+                          src={partner.logoUrl}
+                          alt={`Logo ${partner.name}`}
+                          className="max-h-full max-w-full object-contain filter group-hover:brightness-110 transition-all duration-300"
+                        />
+                      </div>
+                      <span className="text-xs font-extrabold text-neutral-300 group-hover:text-[#A4E83C] transition-colors text-center line-clamp-1">{partner.name}</span>
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center text-neutral-500 text-sm py-4">
+                Nenhum parceiro cadastrado no momento.
+              </div>
+            )}
           </div>
         </div>
       </section>

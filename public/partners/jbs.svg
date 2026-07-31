@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 300" width="100%" height="100%">
+  <!-- Background Container -->
+  <rect width="500" height="300" rx="20" fill="#FFFFFF"/>
+  
+  <!-- Left Cyan & Green Curves -->
+  <path d="M 75 105 C 50 140, 50 170, 75 205" fill="none" stroke="#00C4D5" stroke-width="16" stroke-linecap="round"/>
+  <path d="M 95 90 C 65 140, 65 170, 95 220" fill="none" stroke="#001B94" stroke-width="26" stroke-linecap="round"/>
+  
+  <!-- JBS Text -->
+  <text x="250" y="185" text-anchor="middle" font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="110" fill="#001B94" letter-spacing="-2">JBS</text>
+  
+  <!-- Right Blue & Light Green Curves -->
+  <path d="M 405 90 C 435 140, 435 170, 405 220" fill="none" stroke="#001B94" stroke-width="26" stroke-linecap="round"/>
+  <path d="M 425 105 C 450 140, 450 170, 425 205" fill="none" stroke="#7BC143" stroke-width="16" stroke-linecap="round"/>
+</svg>

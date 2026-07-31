@@ -13,6 +13,7 @@ import {
   saveDadosEmpresa,
   PortfolioProject,
   Testimonial,
+  PartnerLogo,
 } from '@/app/actions/configSite';
 import LandingPageSettingsEditor from '@/components/crm/landing-page-settings-editor';
 
@@ -43,6 +44,7 @@ export default function ConfiguracoesPage() {
   // ─── Landing Page ────────────────────────────────────────────────────────────
   const [portfolio, setPortfolio] = useState<PortfolioProject[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [partners, setPartners] = useState<PartnerLogo[]>([]);
 
   // ─── WhatsApp Notificações ───────────────────────────────────────────────────
   const [config, setConfig] = useState<WhatsappConfig | null>(null);
@@ -78,6 +80,7 @@ export default function ConfiguracoesPage() {
           setInstagramHandle(siteRes.data.instagram_handle || '@greentechcharge');
           setPortfolio(siteRes.data.site_portfolio);
           setTestimonials(siteRes.data.site_testimonials);
+          setPartners(siteRes.data.site_partners || []);
         }
 
         // Carregar configurações de WhatsApp
@@ -462,6 +465,8 @@ export default function ConfiguracoesPage() {
             setPortfolio={setPortfolio}
             testimonials={testimonials}
             setTestimonials={setTestimonials}
+            partners={partners}
+            setPartners={setPartners}
             showToast={showToast}
           />
         )}

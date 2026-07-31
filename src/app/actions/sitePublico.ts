@@ -22,6 +22,26 @@ export interface Testimonial {
   avatarUrl?: string;
 }
 
+export interface PartnerLogo {
+  id: string;
+  name: string;
+  logoUrl: string;
+  websiteUrl?: string;
+}
+
+export const DEFAULT_PARTNERS: PartnerLogo[] = [
+  {
+    id: '1',
+    name: 'Bosch Service',
+    logoUrl: '/partners/bosch.svg',
+  },
+  {
+    id: '2',
+    name: 'JBS',
+    logoUrl: '/partners/jbs.svg',
+  },
+];
+
 export interface DadosPublicosSite {
   nome_fantasia: string;
   cnpj: string;
@@ -30,6 +50,7 @@ export interface DadosPublicosSite {
   instagram_handle: string;
   site_portfolio: PortfolioProject[];
   site_testimonials: Testimonial[];
+  site_partners: PartnerLogo[];
 }
 
 /**
@@ -84,6 +105,7 @@ export async function getDadosPublicosSite(): Promise<DadosPublicosSite> {
         rating: 5,
       },
     ],
+    site_partners: DEFAULT_PARTNERS,
   };
 
   try {
@@ -92,7 +114,7 @@ export async function getDadosPublicosSite(): Promise<DadosPublicosSite> {
     // Busca a primeira empresa ativa (produto single-tenant)
     const { data, error } = await supabase
       .from('empresas')
-      .select('nome_fantasia, cnpj, whatsapp_responsavel, regiao_atendimento, instagram_handle, site_portfolio, site_testimonials')
+      .select('nome_fantasia, cnpj, whatsapp_responsavel, regiao_atendimento, instagram_handle, site_portfolio, site_testimonials, site_partners')
       .neq('status_assinatura', 'cancelada')
       .order('criado_em', { ascending: true })
       .limit(1)
@@ -111,6 +133,10 @@ export async function getDadosPublicosSite(): Promise<DadosPublicosSite> {
       ? (data.site_testimonials as Testimonial[])
       : DEFAULT.site_testimonials;
 
+    const partners = Array.isArray(data.site_partners) && data.site_partners.length > 0
+      ? (data.site_partners as PartnerLogo[])
+      : DEFAULT.site_partners;
+
     return {
       nome_fantasia: data.nome_fantasia ?? DEFAULT.nome_fantasia,
       cnpj: data.cnpj ?? '',
@@ -119,6 +145,7 @@ export async function getDadosPublicosSite(): Promise<DadosPublicosSite> {
       instagram_handle: data.instagram_handle ?? DEFAULT.instagram_handle,
       site_portfolio: portfolio,
       site_testimonials: testimonials,
+      site_partners: partners,
     };
   } catch (err: any) {
     console.error('[getDadosPublicosSite] Erro inesperado:', err);

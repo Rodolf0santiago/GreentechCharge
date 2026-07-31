@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <!-- Background Shield -->
+  <path d="M 10,10 L 490,10 L 490,320 L 250,480 L 10,320 Z" fill="#FFFFFF" stroke="#007BC0" stroke-width="12"/>
+  <rect x="10" y="10" width="480" height="40" fill="#007BC0" />
+  
+  <!-- BOSCH Text -->
+  <text x="250" y="180" text-anchor="middle" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="900" font-size="110" fill="#E20015" letter-spacing="-2">BOSCH</text>
+  
+  <!-- Service Text -->
+  <text x="250" y="300" text-anchor="middle" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="600" font-size="95" fill="#002B49">Service</text>
+  
+  <!-- Magnet Emblem Circle -->
+  <g transform="translate(250, 390)">
+    <circle cx="0" cy="0" r="55" fill="none" stroke="#002B49" stroke-width="10"/>
+    <rect x="-24" y="-28" width="48" height="56" fill="none" stroke="#002B49" stroke-width="9" rx="4"/>
+    <line x1="-24" y1="0" x2="24" y2="0" stroke="#002B49" stroke-width="9"/>
+  </g>
+</svg>
