@@ -64,36 +64,49 @@ export interface ConfigSite {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 async function getEmpresaIdFromSession(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('sb-access-token')?.value;
-  if (!token) return null;
-
   const supabase = createServerClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser(token);
-  if (error || !user) return null;
+  try {
+    const cookieStore = await cookies();
+    const token =
+      cookieStore.get('sb-access-token')?.value ||
+      cookieStore.get('sb-auth-token')?.value;
 
-  // Busca empresa_id do perfil (tabela perfis_usuarios)
-  const { data: profile } = await supabase
-    .from('perfis_usuarios')
-    .select('empresa_id')
-    .eq('id', user.id)
-    .single();
+    if (token) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser(token);
 
-  if (profile?.empresa_id) {
-    return profile.empresa_id;
+      if (user) {
+        // Busca empresa_id do perfil (tabela perfis_usuarios)
+        const { data: profile } = await supabase
+          .from('perfis_usuarios')
+          .select('empresa_id')
+          .eq('id', user.id)
+          .single();
+
+        if (profile?.empresa_id) {
+          return profile.empresa_id;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[getEmpresaIdFromSession] Aviso ao verificar sessão do cookie:', err);
   }
 
-  // Fallback: busca a primeira empresa no banco de dados (produto single-tenant)
-  const { data: firstEmpresa } = await supabase
-    .from('empresas')
-    .select('id')
-    .limit(1)
-    .maybeSingle();
+  // Fallback: busca a primeira empresa ativa no banco de dados (produto single-tenant)
+  try {
+    const { data: firstEmpresa } = await supabase
+      .from('empresas')
+      .select('id')
+      .neq('status_assinatura', 'cancelada')
+      .order('criado_em', { ascending: true })
+      .limit(1)
+      .maybeSingle();
 
-  return firstEmpresa?.id ?? null;
+    return firstEmpresa?.id ?? null;
+  } catch (e) {
+    return null;
+  }
 }
 
 // ─── Actions ─────────────────────────────────────────────────────────────────

@@ -92,12 +92,11 @@ export async function getLandingPageData(): Promise<LandingPageData> {
     return JSON.parse(fileContent) as LandingPageData;
   } catch (err) {
     console.warn('Arquivo landing-page-data.json não encontrado ou inválido, usando dados padrão:', err);
-    // Tentar criar o arquivo com os dados padrão para futuras chamadas
     try {
       await fs.mkdir(path.dirname(DATA_FILE_PATH), { recursive: true });
       await fs.writeFile(DATA_FILE_PATH, JSON.stringify(DEFAULT_DATA, null, 2), 'utf-8');
     } catch (writeErr) {
-      console.error('Erro ao escrever arquivo de dados padrão:', writeErr);
+      console.warn('Ambiente Serverless/Vercel read-only:', writeErr);
     }
     return DEFAULT_DATA;
   }
@@ -112,9 +111,14 @@ export async function saveLandingPageData(data: LandingPageData): Promise<{ succ
       return { success: false, error: 'Estrutura de dados inválida.' };
     }
     
-    // Garantir que o diretório exista
-    await fs.mkdir(path.dirname(DATA_FILE_PATH), { recursive: true });
-    await fs.writeFile(DATA_FILE_PATH, JSON.stringify(data, null, 2), 'utf-8');
+    // Tentar gravar no disco se o ambiente permitir (no Vercel é read-only)
+    try {
+      await fs.mkdir(path.dirname(DATA_FILE_PATH), { recursive: true });
+      await fs.writeFile(DATA_FILE_PATH, JSON.stringify(data, null, 2), 'utf-8');
+    } catch (fsErr) {
+      console.warn('[saveLandingPageData] Ambiente Serverless read-only:', fsErr);
+    }
+
     return { success: true };
   } catch (err: any) {
     console.error('Erro ao salvar dados da landing page:', err);
