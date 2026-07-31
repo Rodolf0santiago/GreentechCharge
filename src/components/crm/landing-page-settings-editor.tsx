@@ -209,18 +209,51 @@ export default function LandingPageSettingsEditor({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('O arquivo de imagem deve ter no máximo 5MB.', 'error');
+    if (file.size > 8 * 1024 * 1024) {
+      showToast('O arquivo de imagem deve ter no máximo 8MB.', 'error');
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
-      if (dataUrl) {
-        setPartnerLogoUrl(dataUrl);
+      const rawUrl = event.target?.result as string;
+      if (!rawUrl) return;
+
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const maxDim = 450;
+
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const isPng = file.type === 'image/png' || file.name.endsWith('.png');
+          const dataUrl = canvas.toDataURL(isPng ? 'image/png' : 'image/jpeg', 0.88);
+          setPartnerLogoUrl(dataUrl);
+        } else {
+          setPartnerLogoUrl(rawUrl);
+        }
         setPartnerImageMode('upload');
-      }
+      };
+      img.onerror = () => {
+        setPartnerLogoUrl(rawUrl);
+        setPartnerImageMode('upload');
+      };
+      img.src = rawUrl;
     };
     reader.readAsDataURL(file);
   };

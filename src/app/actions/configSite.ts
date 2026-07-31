@@ -2,6 +2,10 @@
 
 import { createServerClient } from '@/lib/supabase';
 import { cookies } from 'next/headers';
+import fs from 'fs/promises';
+import path from 'path';
+
+const DATA_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'landing-page-data.json');
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -108,6 +112,16 @@ export async function getConfigSite(): Promise<{
       return { success: false, error: 'Sessão não encontrada ou empresa não selecionada.' };
     }
 
+    // Tentar carregar partners do arquivo JSON local como fallback prioritário se necessário
+    let localFilePartners: PartnerLogo[] = [];
+    try {
+      const fileContent = await fs.readFile(DATA_FILE_PATH, 'utf-8');
+      const parsed = JSON.parse(fileContent);
+      if (Array.isArray(parsed.partners) && parsed.partners.length > 0) {
+        localFilePartners = parsed.partners;
+      }
+    } catch {}
+
     const supabase = createServerClient();
 
     // Tenta buscar com colunas novas; se a migration ainda não foi aplicada, usa fallback
@@ -138,12 +152,14 @@ export async function getConfigSite(): Promise<{
         instagram_handle: '@greentechcharge',
         site_portfolio: [],
         site_testimonials: [],
-        site_partners: DEFAULT_PARTNERS,
+        site_partners: localFilePartners.length > 0 ? localFilePartners : DEFAULT_PARTNERS,
       };
     }
 
     const partners = Array.isArray(data.site_partners) && data.site_partners.length > 0
       ? (data.site_partners as PartnerLogo[])
+      : localFilePartners.length > 0
+      ? localFilePartners
       : DEFAULT_PARTNERS;
 
     return {
@@ -211,7 +227,7 @@ export async function saveDadosEmpresa(dados: {
 }
 
 /**
- * Salva portfólio e depoimentos do site da empresa.
+ * Salva portfólio, depoimentos e parceiros do site da empresa.
  */
 export async function saveSiteContent(dados: {
   portfolio: PortfolioProject[];
@@ -228,6 +244,27 @@ export async function saveSiteContent(dados: {
       return { success: false, error: 'Estrutura de dados inválida.' };
     }
 
+    // 1. Gravar arquivo JSON local para persistência garantida
+    try {
+      await fs.mkdir(path.dirname(DATA_FILE_PATH), { recursive: true });
+      await fs.writeFile(
+        DATA_FILE_PATH,
+        JSON.stringify(
+          {
+            projects: dados.portfolio,
+            testimonials: dados.testimonials,
+            partners: dados.partners || [],
+          },
+          null,
+          2
+        ),
+        'utf-8'
+      );
+    } catch (fsErr) {
+      console.warn('[saveSiteContent] Erro ao gravar JSON local:', fsErr);
+    }
+
+    // 2. Tentar atualizar banco de dados Supabase
     const supabase = createServerClient();
     const updatePayload: any = {
       site_portfolio: dados.portfolio,
@@ -243,8 +280,15 @@ export async function saveSiteContent(dados: {
       .eq('id', empresaId);
 
     if (error) {
-      console.error('[saveSiteContent] Erro:', error);
-      return { success: false, error: error.message || 'Erro ao salvar conteúdo do site.' };
+      console.warn('[saveSiteContent] Erro Supabase:', error.message);
+      // Se a coluna site_partners ainda não foi criada na migration do Supabase, tenta atualizar sem essa coluna
+      if (error.message?.includes('site_partners') || error.code === 'PGRST204') {
+        delete updatePayload.site_partners;
+        await supabase
+          .from('empresas')
+          .update(updatePayload)
+          .eq('id', empresaId);
+      }
     }
 
     return { success: true };

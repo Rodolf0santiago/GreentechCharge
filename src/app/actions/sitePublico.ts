@@ -1,6 +1,10 @@
 'use server';
 
 import { createServerClient } from '@/lib/supabase';
+import fs from 'fs/promises';
+import path from 'path';
+
+const DATA_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'landing-page-data.json');
 
 export interface PortfolioProject {
   id: string;
@@ -59,6 +63,15 @@ export interface DadosPublicosSite {
  * Não requer autenticação.
  */
 export async function getDadosPublicosSite(): Promise<DadosPublicosSite> {
+  let localPartners: PartnerLogo[] = [];
+  try {
+    const fileContent = await fs.readFile(DATA_FILE_PATH, 'utf-8');
+    const parsed = JSON.parse(fileContent);
+    if (Array.isArray(parsed.partners) && parsed.partners.length > 0) {
+      localPartners = parsed.partners;
+    }
+  } catch {}
+
   const DEFAULT: DadosPublicosSite = {
     nome_fantasia: 'Greentech Charge',
     cnpj: '',
@@ -105,14 +118,17 @@ export async function getDadosPublicosSite(): Promise<DadosPublicosSite> {
         rating: 5,
       },
     ],
-    site_partners: DEFAULT_PARTNERS,
+    site_partners: localPartners.length > 0 ? localPartners : DEFAULT_PARTNERS,
   };
 
   try {
     const supabase = createServerClient();
 
+    let data: any = null;
+    let error: any = null;
+
     // Busca a primeira empresa ativa (produto single-tenant)
-    const { data, error } = await supabase
+    const resWithPartners = await supabase
       .from('empresas')
       .select('nome_fantasia, cnpj, whatsapp_responsavel, regiao_atendimento, instagram_handle, site_portfolio, site_testimonials, site_partners')
       .neq('status_assinatura', 'cancelada')
@@ -120,8 +136,24 @@ export async function getDadosPublicosSite(): Promise<DadosPublicosSite> {
       .limit(1)
       .maybeSingle();
 
+    if (resWithPartners.error) {
+      // Se deu erro por coluna ausente no DB, busca colunas base
+      const resBase = await supabase
+        .from('empresas')
+        .select('nome_fantasia, cnpj, whatsapp_responsavel, regiao_atendimento, instagram_handle, site_portfolio, site_testimonials')
+        .neq('status_assinatura', 'cancelada')
+        .order('criado_em', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      data = resBase.data;
+      error = resBase.error;
+    } else {
+      data = resWithPartners.data;
+    }
+
     if (error || !data) {
-      console.warn('[getDadosPublicosSite] Usando dados padrão:', error?.message);
+      console.warn('[getDadosPublicosSite] Usando dados padrão/arquivo local:', error?.message);
       return DEFAULT;
     }
 
@@ -135,6 +167,8 @@ export async function getDadosPublicosSite(): Promise<DadosPublicosSite> {
 
     const partners = Array.isArray(data.site_partners) && data.site_partners.length > 0
       ? (data.site_partners as PartnerLogo[])
+      : localPartners.length > 0
+      ? localPartners
       : DEFAULT.site_partners;
 
     return {
