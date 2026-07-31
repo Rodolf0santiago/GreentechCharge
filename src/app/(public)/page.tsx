@@ -755,7 +755,7 @@ export default function LandingPage() {
                   </div>
 
                   <p className="text-neutral-350 text-sm md:text-base italic leading-relaxed mb-6 text-neutral-300">
-                    "{test.comment}"
+                    &quot;{test.comment}&quot;
                   </p>
 
                   <div className="pt-4 border-t border-neutral-900/60 flex items-center gap-3">
