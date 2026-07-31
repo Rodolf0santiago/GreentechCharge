@@ -66,58 +66,67 @@ export default function ConfiguracoesPage() {
   const [isTesting, setIsTesting] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
 
+  // ─── Formatters ──────────────────────────────────────────────────────────────
+  const formatCNPJ = (v?: string | null) => {
+    if (!v || typeof v !== 'string') return '';
+    const n = v.replace(/\D/g, '');
+    if (n.length !== 14) return v;
+    return n.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+  };
+
+  const formatPhone = (v?: string | null) => {
+    if (!v || typeof v !== 'string') return '';
+    const n = v.replace(/\D/g, '');
+    if (n.length === 13) return n.replace(/^(\d{2})(\d{2})(\d{5})(\d{4})$/, '+$1 ($2) $3-$4');
+    if (n.length === 11) return n.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+    return v;
+  };
+
   // ─── Load Data ───────────────────────────────────────────────────────────────
   useEffect(() => {
     async function loadAll() {
+      setIsLoading(true);
+
+      // 1. Carregar dados do site / empresa
       try {
-        // Carregar dados do site/empresa
         const siteRes = await getConfigSite();
         if (siteRes.success && siteRes.data) {
-          setNomeFantasia(siteRes.data.nome_fantasia);
+          setNomeFantasia(siteRes.data.nome_fantasia || 'Greentech Charge');
           setCnpj(formatCNPJ(siteRes.data.cnpj));
-          setWhatsappResponsavel(formatPhone(siteRes.data.whatsapp_responsavel ?? ''));
+          setWhatsappResponsavel(formatPhone(siteRes.data.whatsapp_responsavel));
           setRegiaoAtendimento(siteRes.data.regiao_atendimento || 'Florianópolis e Região');
           setInstagramHandle(siteRes.data.instagram_handle || '@greentechcharge');
-          setPortfolio(siteRes.data.site_portfolio);
-          setTestimonials(siteRes.data.site_testimonials);
+          setPortfolio(siteRes.data.site_portfolio || []);
+          setTestimonials(siteRes.data.site_testimonials || []);
           setPartners(siteRes.data.site_partners || []);
         }
+      } catch (siteErr) {
+        console.error('[ConfiguracoesPage] Erro ao carregar site/empresa:', siteErr);
+      }
 
-        // Carregar configurações de WhatsApp
+      // 2. Carregar configurações de WhatsApp
+      try {
         const wppData = await getWhatsappConfig();
-        setConfig(wppData);
-        setAtivo(wppData.ativo);
-        setApiProvider(wppData.api_provider);
-        setApiUrl(wppData.api_url || '');
-        setApiKey(wppData.api_key || '');
-        setInstancia(wppData.instancia || '');
-        setAntecedenciaMinutos(wppData.antecedencia_minutos);
-        setMensagemTemplate(wppData.mensagem_template);
-        setHeadersCustomizados(wppData.headers_customizados || '');
-        setPayloadCustomizado(wppData.payload_customizado || '');
-      } catch (err: any) {
-        showToast('Erro ao carregar configurações.', 'error');
+        if (wppData) {
+          setConfig(wppData);
+          setAtivo(wppData.ativo ?? false);
+          setApiProvider(wppData.api_provider || 'evolution');
+          setApiUrl(wppData.api_url || '');
+          setApiKey(wppData.api_key || '');
+          setInstancia(wppData.instancia || '');
+          setAntecedenciaMinutos(wppData.antecedencia_minutos ?? 60);
+          setMensagemTemplate(wppData.mensagem_template || '');
+          setHeadersCustomizados(wppData.headers_customizados || '');
+          setPayloadCustomizado(wppData.payload_customizado || '');
+        }
+      } catch (wppErr) {
+        console.error('[ConfiguracoesPage] Erro ao carregar WhatsApp:', wppErr);
       } finally {
         setIsLoading(false);
       }
     }
     loadAll();
   }, []);
-
-  // ─── Formatters ──────────────────────────────────────────────────────────────
-  const formatCNPJ = (v: string) => {
-    const n = v.replace(/\D/g, '');
-    if (n.length !== 14) return v;
-    return n.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
-  };
-
-  const formatPhone = (v: string) => {
-    if (!v) return '';
-    const n = v.replace(/\D/g, '');
-    if (n.length === 13) return n.replace(/^(\d{2})(\d{2})(\d{5})(\d{4})$/, '+$1 ($2) $3-$4');
-    if (n.length === 11) return n.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
-    return v;
-  };
 
   // ─── Handlers — Empresa ──────────────────────────────────────────────────────
   const handleSaveEmpresa = async (e: React.FormEvent) => {
